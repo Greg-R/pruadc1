@@ -1,0 +1,10 @@
+#!/bin/bash
+
+clpru --cmd_file=buildtestPRU0
+clpru --cmd_file=buildtestPRU1
+cd result
+cp pru0adc.out am335x-pru0-fw
+cp pru1adc.out  am335x-pru1-fw
+cp am335x-pru0-fw /lib/firmware
+cp am335x-pru1-fw /lib/firmware
+
