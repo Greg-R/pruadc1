@@ -1,7 +1,0 @@
-#!/bin/bash
-
-clpru --include_path=../includeSupportPackage \ 
---include_path=$PRU_CGT/include \
--O2 \
---hardware_mac=on \
-testPRU.c
