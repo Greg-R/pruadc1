@@ -1,8 +1,9 @@
 
 # Compile commands follow
 "--"include_path=$PRU_CGT/includeSupportPackage
-"--"include_path=$PRU_CGT/includeSupportPackage/am335x
+#"--"include_path=$PRU_CGT/includeSupportPackage/am335x
 "--"include_path=$PRU_CGT/include
+#"--"include_path=/usr/share/ti/cgt-pru/includeSupportPackage/am335x
 # "-"O2 This is optimization level 2.  Don't use.
 "--"display_error_number
 "--"hardware_mac=on
@@ -17,6 +18,8 @@ pru0adc.c
 "-"z
 "-"i/$PRU_CGT/lib
 "-"i/$PRU_CGT/include
+"-"i/$PRU_CGT/includeSupportPackage
+"-"i/$PRU_CGT/includeSupportPackage/am335x
 "--"reread_libs
 "--"stack_size=0x100
 "--"heap_size=0x100

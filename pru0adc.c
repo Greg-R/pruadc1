@@ -6,8 +6,15 @@
 //  SPI CLK:      P9.30 pr1_pru0_pru_r30_2
 //  Sample Clock: P8.46 pr1_pru1_pru_r30_1  (testing only)
 
-#include "resource_table_empty.h"
 #include <stdint.h>
+#include <stdio.h>
+#include <am335x/pru_intc.h>
+#include <am335x/pru_cfg.h>
+#include <rsc_types.h>
+#include <pru_virtqueue.h>
+#include <pru_rpmsg.h>
+#include <am335x/sys_mailbox.h>
+#include "resource_table_1.h"
 
 #define PRU_SHAREDMEM 0x00010000
   volatile register uint32_t __R30;

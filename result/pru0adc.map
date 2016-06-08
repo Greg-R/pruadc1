@@ -1,7 +1,7 @@
 ******************************************************************************
                      PRU Linker Unix v2.1.2                    
 ******************************************************************************
->> Linked Tue Jun  7 00:25:58 2016
+>> Linked Wed Jun  8 01:25:04 2016
 
 OUTPUT FILE NAME:   <result/pru0adc.out>
 ENTRY POINT SYMBOL: "_c_int00_noinit_noargs_noexit"  address: 00000000
@@ -15,7 +15,7 @@ PAGE 0:
   PRU_IMEM              00000000   00002000  000001d8  00001e28  RWIX
 
 PAGE 1:
-  PRU_DMEM_0_1          00000000   00002000  0000011c  00001ee4  RWIX
+  PRU_DMEM_0_1          00000000   00002000  00000186  00001e7a  RWIX
   PRU_DMEM_1_0          00002000   00002000  00000000  00002000  RWIX
 
 PAGE 2:
@@ -69,17 +69,18 @@ section   page    origin      length       input sections
                   00000000    00000004     rtspruv3_le.lib : boot.obj (.stack)
                   00000004    000000fc     --HOLE--
 
-.bss       1    00000114    00000004     UNINITIALIZED
-                  00000114    00000004     (.common:spiCommand)
+.bss       1    00000182    00000004     UNINITIALIZED
+                  00000182    00000004     (.common:spiCommand)
 
-.data      1    00000118    00000004     
-                  00000118    00000004     pru0adc.object (.data)
+.data      1    0000017c    00000006     
+                  0000017c    00000004     pru0adc.object (.data)
+                  00000180    00000002     pru0adc.object (.data:pru_intc_map)
 
 .cinit     1    00000000    00000000     UNINITIALIZED
 
 .resource_table 
-*          1    00000100    00000014     
-                  00000100    00000014     pru0adc.object (.resource_table:retain)
+*          1    00000100    0000007c     
+                  00000100    0000007c     pru0adc.object (.resource_table:retain)
 
 
 SEGMENT ATTRIBUTES
@@ -88,7 +89,6 @@ SEGMENT ATTRIBUTES
     -- ---      --- -----
      0 PHA_PAGE 1   1    
      1 PHA_PAGE 2   1    
-     2 PHA_PAGE 3   1    
 
 
 GLOBAL SYMBOLS: SORTED ALPHABETICALLY BY Name 
@@ -169,9 +169,10 @@ abs   ffffffff  __c_args__
 0     000001c8  abort                        
 abs   ffffffff  binit                        
 0     00000014  main                         
-1     00000118  numSamples                   
-1     00000100  pru_remoteproc_ResourceTable 
-1     00000114  spiCommand                   
+1     0000017c  numSamples                   
+1     00000180  pru_intc_map                 
+1     00000100  resourceTable                
+1     00000182  spiCommand                   
 
 
 GLOBAL SYMBOLS: SORTED BY Symbol Address 
@@ -184,9 +185,10 @@ page  address   name
 0     000001d0  C$$EXIT                      
 1     00000000  _stack                       
 1     00000100  __TI_STACK_END               
-1     00000100  pru_remoteproc_ResourceTable 
-1     00000114  spiCommand                   
-1     00000118  numSamples                   
+1     00000100  resourceTable                
+1     0000017c  numSamples                   
+1     00000180  pru_intc_map                 
+1     00000182  spiCommand                   
 abs   00000000  __PRU_CREG_BASE_PRU_DMEM_0_1 
 abs   00000000  __PRU_CREG_PRU_INTC          
 abs   00000001  __PRU_CREG_DMTIMER2          
@@ -256,4 +258,4 @@ abs   ffffffff  __binit__
 abs   ffffffff  __c_args__                   
 abs   ffffffff  binit                        
 
-[77 symbols]
+[78 symbols]
