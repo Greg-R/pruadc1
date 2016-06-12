@@ -1,7 +1,7 @@
 
 # Compile commands follow
 "--"include_path=$PRU_CGT/includeSupportPackage
-"--"include_path=$PRU_CGT/includeSupportPackage/am335x
+#"--"include_path=$PRU_CGT/includeSupportPackage/am335x
 "--"include_path=$PRU_CGT/include
 # "-"O2 This is optimization level 2.  Don't use.
 "--"display_error_number

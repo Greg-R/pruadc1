@@ -1,3 +1,4 @@
+//  pru0adc.c
 //  Attempt to duplicate Derek Molloy's
 //  SPI ADC read program in C from assembly.
 //  Chip Select:  P9.27 pr1_pru0_pru_r30_5
@@ -15,6 +16,7 @@
 #include <pru_rpmsg.h>
 #include <am335x/sys_mailbox.h>
 #include "resource_table_1.h"
+#include "rpmsg_send.h"
 
 #define PRU_SHAREDMEM 0x00010000
   volatile register uint32_t __R30;
@@ -26,9 +28,25 @@
 
  int main(void){
 //  1.  Enable OCP Master Port
+  CT_CFG.SYSCFG_bit.STANDBY_INIT = 0;
+//  Clear the status of event MB_INT_NUMBER (the mailbox event) and enable the mailbox event.
+  CT_MBX.IRQ[MB_USER].ENABLE_SET |= 1 << (MB_FROM_ARM_HOST * 2);
+
+//  Make sure the drivers are ready for RPMsg communication:
+  status = &resourceTable.rpmsg_vdev.status;
+  while (!(*status & VIRTIO_CONFIG_S_DRIVER_OK));
+
+//  Initialize pru_virtqueue corresponding to vring0 (PRU to ARM Host direction).
+  pru_virtqueue_init(&transport.virtqueue0, &resourceTable.rpmsg_vring0, &CT_MBX.MESSAGE[MB_TO_ARM_HOST], &CT_MBX.MESSAGE[MB_FROM_ARM_HOST]);
+//  Initialize pru_virtqueue corresponding to vring0 (PRU to ARM Host direction).
+  pru_virtqueue_init(&transport.virtqueue1, &resourceTable.rpmsg_vring1, &CT_MBX.MESSAGE[MB_TO_ARM_HOST], &CT_MBX.MESSAGE[MB_FROM_ARM_HOST]);
+// Create the RPMsg channel between the PRU and the ARM user space using the transport structure.
+while(pru_rpmsg_channel(RPMSG_NS_CREATE, &transport, CHAN_NAME, CHAN_DESC, CHAN_PORT) != PRU_RPMSG_SUCCESS);
+//  The above code should cause an RPMsg character to device to appear in the directory /dev.  
+
 //  2.  Initialization
 
-   uint32_t bitMask; //    = 0x000003FF;  //  Keep only 10 bits using this mask.
+//   uint32_t bitMask; //    = 0x000003FF;  //  Keep only 10 bits using this mask.
 
    uint32_t data = 0x00000000;  // Incoming data stored here.
 //  The data out line is connected to R30 bit 1.

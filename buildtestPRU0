@@ -14,6 +14,7 @@
 "-"k
 "--"c99
 pru0adc.c
+#rpmsg_send.c
 # Linker commands follow
 "-"z
 "-"i/$PRU_CGT/lib
