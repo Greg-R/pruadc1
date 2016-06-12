@@ -1,3 +1,4 @@
-*.ams
+*.asm
 *.[ao]
 *.map
+*.obj
