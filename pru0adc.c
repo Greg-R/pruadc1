@@ -9,12 +9,12 @@
 
 #include <stdint.h>
 #include <stdio.h>
-#include <am335x/pru_intc.h>
-#include <am335x/pru_cfg.h>
-#include <rsc_types.h>
-#include <pru_virtqueue.h>
-#include <pru_rpmsg.h>
-#include <am335x/sys_mailbox.h>
+//#include <am335x/pru_intc.h>
+//#include <am335x/pru_cfg.h>
+//#include <rsc_types.h>
+//#include <pru_virtqueue.h>
+//#include <pru_rpmsg.h>
+//#include <am335x/sys_mailbox.h>
 #include "resource_table_1.h"
 #include "rpmsg_send.h"
 
