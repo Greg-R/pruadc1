@@ -76,8 +76,10 @@ while(1) {
          CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;
          //  Receive all available messages, multiple messages can be sent per kick.
         while (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) == PRU_RPMSG_SUCCESS) {
+    uint8_t payloadOut[1] = {1};
+    len = 1;  //  This is the length of payloadOut in bytes.
         //  Echo the message back to the same address from which we just received.
-               pru_rpmsg_send(&transport, dst, src, payload, len);
+               pru_rpmsg_send(&transport, dst, src, payloadOut, len);
          }}}
 
 //  2.  Initialization
