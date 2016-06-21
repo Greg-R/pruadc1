@@ -23,8 +23,8 @@ volatile register uint32_t __R30;
  * PRU0 uses mailboxes 2 (From ARM) and 3 (To ARM)
  * PRU1 uses mailboxes 4 (From ARM) and 5 (To ARM)
  */
-#define MB_TO_ARM_HOST				5
-#define MB_FROM_ARM_HOST			4
+#define TO_ARM_HOST			16	
+#define FROM_ARM_HOST			17
 
  // Using the name 'rpmsg-pru' will probe the rpmsg_pru driver found
  // at linux-x.y.z/drivers/rpmsg/rpmsg_pru.c

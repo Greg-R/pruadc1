@@ -9,14 +9,35 @@
 
 #include <stdint.h>
 #include <stdio.h>
-//#include <am335x/pru_intc.h>
-//#include <am335x/pru_cfg.h>
-//#include <rsc_types.h>
-//#include <pru_virtqueue.h>
-//#include <pru_rpmsg.h>
-//#include <am335x/sys_mailbox.h>
-#include "resource_table_1.h"
-#include "rpmsg_send.h"
+#include <am335x/pru_intc.h>
+#include <am335x/pru_cfg.h>
+#include <rsc_types.h>
+#include <pru_virtqueue.h>
+#include <pru_rpmsg.h>
+#include "resource_table_0.h"
+//#include "rpmsg_send.h"
+
+// Define remoteproc related variables.
+#define HOST_INT ((uint32_t) 1 << 30)
+
+//  The PRU-ICSS system events used for RPMsg are defined in the Linux device tree.
+//  PRU0 uses system event 16 (to ARM) and 17 (from ARM)
+//  PRU1 uses system event 18 (to ARM) and 19 (from ARM)
+#define TO_ARM_HOST    16
+#define FROM_ARM_HOST  17
+
+//  Using the name 'rpmsg-pru' will probe the rpmsg_pru driver found
+//  at linux-x.y.x/drivers/rpmsg_pru.c
+#define CHAN_NAME    "rpmsg-pru"
+#define CHAN_DESC    "Channel 30"
+#define CHAN_PORT    30
+
+//  Used to make sure the Linux drivers are ready for RPMsg communication
+//  Found at linux-x.y.z/include/uapi/linux/virtio_config.h
+#define VIRTIO_CONFIG_S_DRIVER_OK  4
+
+//  Buffer used for PRU to ARM communication.
+uint8_t payload[RPMSG_BUF_SIZE];
 
 #define PRU_SHAREDMEM 0x00010000
   volatile register uint32_t __R30;
@@ -27,22 +48,37 @@
   uint32_t numSamples = 1000000;  // Number of samples
 
  int main(void){
+    struct pru_rpmsg_transport transport;
+    uint16_t src, dst, len;
+    volatile uint8_t *status;
+
 //  1.  Enable OCP Master Port
   CT_CFG.SYSCFG_bit.STANDBY_INIT = 0;
-//  Clear the status of event MB_INT_NUMBER (the mailbox event) and enable the mailbox event.
-  CT_MBX.IRQ[MB_USER].ENABLE_SET |= 1 << (MB_FROM_ARM_HOST * 2);
+//  Clear the status of PRU-ICSS system event that the armwill use to 'kick' us.
+  CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;
 
 //  Make sure the drivers are ready for RPMsg communication:
   status = &resourceTable.rpmsg_vdev.status;
   while (!(*status & VIRTIO_CONFIG_S_DRIVER_OK));
 
 //  Initialize pru_virtqueue corresponding to vring0 (PRU to ARM Host direction).
-  pru_virtqueue_init(&transport.virtqueue0, &resourceTable.rpmsg_vring0, &CT_MBX.MESSAGE[MB_TO_ARM_HOST], &CT_MBX.MESSAGE[MB_FROM_ARM_HOST]);
+  pru_virtqueue_init(&transport.virtqueue0, &resourceTable.rpmsg_vring0, TO_ARM_HOST, FROM_ARM_HOST);
 //  Initialize pru_virtqueue corresponding to vring0 (PRU to ARM Host direction).
-  pru_virtqueue_init(&transport.virtqueue1, &resourceTable.rpmsg_vring1, &CT_MBX.MESSAGE[MB_TO_ARM_HOST], &CT_MBX.MESSAGE[MB_FROM_ARM_HOST]);
+  pru_virtqueue_init(&transport.virtqueue1, &resourceTable.rpmsg_vring1, TO_ARM_HOST, FROM_ARM_HOST);
+
 // Create the RPMsg channel between the PRU and the ARM user space using the transport structure.
-while(pru_rpmsg_channel(RPMSG_NS_CREATE, &transport, CHAN_NAME, CHAN_DESC, CHAN_PORT) != PRU_RPMSG_SUCCESS);
+  while(pru_rpmsg_channel(RPMSG_NS_CREATE, &transport, CHAN_NAME, CHAN_DESC, CHAN_PORT) != PRU_RPMSG_SUCCESS);
 //  The above code should cause an RPMsg character to device to appear in the directory /dev.  
+//  The following is a test loop.  Comment this out for normal operation.
+
+while(1) {
+       if (__R31 & HOST_INT) {  // Clear the event status.
+         CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;
+         //  Receive all available messages, multiple messages can be sent per kick.
+        while (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) == PRU_RPMSG_SUCCESS) {
+        //  Echo the message back to the same address from which we just received.
+               pru_rpmsg_send(&transport, dst, src, payload, len);
+         }}}
 
 //  2.  Initialization
 
