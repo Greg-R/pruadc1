@@ -32,16 +32,19 @@
  */
 
 #include <stdio.h>
+#include <stdint.h>
+#include <inttypes.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
 #include <sys/poll.h>
 
 #define MAX_BUFFER_SIZE		512
-char readBuf[MAX_BUFFER_SIZE];
+uint16_t readBuf[MAX_BUFFER_SIZE];
+//uint16_t readBuf;
 
 #define NUM_MESSAGES		100
-#define DEVICE_NAME		"/dev/rpmsg_pru31"
+#define DEVICE_NAME		"/dev/rpmsg_pru30"
 
 int main(void)
 {
@@ -68,14 +71,15 @@ int main(void)
 
 	for (i = 0; i < NUM_MESSAGES; i++) {
 		/* Send 'hello world!' to the PRU through the RPMsg channel */
-		result = write(pollfds[0].fd, "hello world!", 13);
+	//	result = write(pollfds[0].fd, "hello world!", 13);
+		result = write(pollfds[0].fd, 21, 1);
 		if (result > 0)
 			printf("Message %d: Sent to PRU\n", i);
 
 		/* Poll until we receive a message from the PRU and then print it */
 		result = read(pollfds[0].fd, readBuf, MAX_BUFFER_SIZE);
 		if (result > 0)
-			printf("Message %d received from PRU:%s\n\n", i, readBuf);
+			printf("Message %d received from PRU:%" PRIu16 "\n\n", i, readBuf[0]);
 	}
 
 	/* Received all the messages the example is complete */
