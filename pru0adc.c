@@ -44,12 +44,13 @@ uint16_t payload[RPMSG_BUF_SIZE];
 
 //  uint32_t spiCommand = 0x80;  // Single-ended, Channel 0
   uint32_t spiCommand;
-  uint32_t numSamples = 1000000;  // Number of samples
+  uint32_t numSamples = 100;  // Number of samples
 
  int main(void){
     struct pru_rpmsg_transport transport;
     uint16_t src, dst, len;
     volatile uint8_t *status;
+    uint16_t payloadOut[10];
 
 //  1.  Enable OCP Master Port
   CT_CFG.SYSCFG_bit.STANDBY_INIT = 0;
@@ -70,6 +71,7 @@ uint16_t payload[RPMSG_BUF_SIZE];
 //  The above code should cause an RPMsg character to device to appear in the directory /dev.  
 //  The following is a test loop.  Comment this out for normal operation.
 
+/*
 while(1) {
        if (__R31 & HOST_INT) {  // Clear the event status.
          CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;
@@ -80,6 +82,17 @@ while(1) {
         //  Echo the message back to the same address from which we just received.
                pru_rpmsg_send(&transport, dst, src, payloadOut, len);
          }}}
+*/
+//  This section of code blocks until a message is received from ARM.
+//  This is done to initialize the RPMSG communication.
+//       if (__R31 & HOST_INT) {  // The interrupt from the ARM host. 
+//         CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;  // Clear the event status.
+         //  Receive all available messages, multiple messages can be sent per kick.
+        while (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) != PRU_RPMSG_SUCCESS) {}
+//    uint16_t payloadOut[1] = {123};
+//    len = 2;  //  This is the length of payloadOut in bytes.
+        //  Echo the message back to the same address from which we just received.
+//         pru_rpmsg_send(&transport, dst, src, payloadOut, len);
 
 //  2.  Initialization
 
@@ -97,6 +110,7 @@ while(1) {
    __delay_cycles(100000000);  //  Allow chip to stabilize.
 
 //  3.  SPI Data capture loop.  This captures numSamples data samples from the ADC.
+   uint8_t dataCounter = 0;  // Used to load data transmission buffer payloadOut;
 
 for(int i = 0; i < numSamples; i = i + 1) {  //  Outer loop.  This determines # samples.
  while(!(*clockPointer)){}  //  Hold until the Master clock from PRU1 goes high.
@@ -138,8 +152,15 @@ for(int i = 0; i < numSamples; i = i + 1) {  //  Outer loop.  This determines # 
     data = data & 0xFFFFFFFE;
   }  //  End of 24 cycle loop
    __R30 = __R30 | 1 << 5;  //  Chip select to HIGH
+
+//  Send frames of 10 samples.   
+    payloadOut[dataCounter] = (uint16_t) data;
+    dataCounter += 1;
+if(dataCounter == 9){
+   pru_rpmsg_send(&transport, dst, src, payloadOut, 20);
+   dataCounter = 0;
 }
- //  End data acquisition loop.
+}//  End data acquisition loop.
 
 /*
 //   __R31 = 35;                      // PRUEVENT_0 on PRU0_R31_VEC_VALID
