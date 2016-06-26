@@ -14,7 +14,7 @@
 uint16_t readBuf[MAX_BUFFER_SIZE];
 //uint16_t readBuf;
 
-#define NUM_MESSAGES		100
+#define NUM_MESSAGES		1
 #define DEVICE_NAME		"/dev/rpmsg_pru30"
 
 int main(void)
