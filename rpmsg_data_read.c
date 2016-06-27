@@ -51,7 +51,9 @@ int main(void)
 		/* Poll until we receive a message from the PRU and then print it */
 		result = read(pollfds[0].fd, readBuf, MAX_BUFFER_SIZE);
 		if (result > 0)
-			printf("Message %d received from PRU:%" PRIu16 "\n\n", i, readBuf[0]);
+                   for(int i=0; i < 100; i++){
+			printf("Message %d received from PRU:%" PRIu16 "\n", i, readBuf[i]);
+                       }
 	}
 
 	/* Received all the messages the example is complete */

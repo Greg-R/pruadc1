@@ -44,7 +44,11 @@ uint16_t payload[RPMSG_BUF_SIZE];
 
 //  uint32_t spiCommand = 0x80;  // Single-ended, Channel 0
   uint32_t spiCommand;
+<<<<<<< HEAD
   uint32_t numSamples = 1000000;  // Number of samples
+=======
+  uint32_t numSamples = 100;  // Number of samples
+>>>>>>> parent of 45b2ffd... First working example of ADC data transfer from PRU to Host.
 
  int main(void){
     struct pru_rpmsg_transport transport;
@@ -130,7 +134,7 @@ for(int i = 0; i < numSamples; i = i + 1) {  //  Outer loop.  This determines # 
 // The Start-bit cycle is completed.
 
 //  Get 24 bits from the data line MISO R31.t3 (bit 3)
-   for(int i = 0; i < 16; i = i + 1) {  //  Inner single sample loop
+   for(int i = 0; i < 23; i = i + 1) {  //  Inner single sample loop
 
 //  The first action will be to transmit on MOSI by shifting out spiCommand variable.
     if(spiCommand >> 31) //  If the MSB is 1 
