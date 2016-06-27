@@ -44,13 +44,13 @@ uint16_t payload[RPMSG_BUF_SIZE];
 
 //  uint32_t spiCommand = 0x80;  // Single-ended, Channel 0
   uint32_t spiCommand;
-  uint32_t numSamples = 1000;  // Number of samples
+  uint32_t numSamples = 1000000;  // Number of samples
 
  int main(void){
     struct pru_rpmsg_transport transport;
     uint16_t src, dst, len;
     volatile uint8_t *status;
-    uint16_t payloadOut[10];
+//    uint16_t payloadOut[100];
 
 //  1.  Enable OCP Master Port
   CT_CFG.SYSCFG_bit.STANDBY_INIT = 0;
@@ -85,8 +85,9 @@ while(1) {
 */
 //  This section of code blocks until a message is received from ARM.
 //  This is done to initialize the RPMSG communication.
-//       if (__R31 & HOST_INT) {  // The interrupt from the ARM host. 
-//         CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;  // Clear the event status.
+       if (__R31 & HOST_INT) {  // The interrupt from the ARM host. 
+         CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;  // Clear the event status.
+        }
          //  Receive all available messages, multiple messages can be sent per kick.
         while (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) != PRU_RPMSG_SUCCESS) {}
 //    uint16_t payloadOut[1] = {123};
@@ -153,17 +154,16 @@ for(int i = 0; i < numSamples; i = i + 1) {  //  Outer loop.  This determines # 
   }  //  End of 24 cycle loop
    __R30 = __R30 | 1 << 5;  //  Chip select to HIGH
 
-//  Send frames of 10 samples.   
-    payloadOut[dataCounter] = (uint16_t) data;
+//  Send frames of 100 samples.   
+    payload[dataCounter] = (uint16_t) data;
     dataCounter += 1;
-if(dataCounter == 9){
-   pru_rpmsg_send(&transport, dst, src, payloadOut, 20);
+if(dataCounter == 99){
+   pru_rpmsg_send(&transport, dst, src, payload, 200);
    dataCounter = 0;
+//         CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;
 }
 }//  End data acquisition loop.
 
-/*
 //   __R31 = 35;                      // PRUEVENT_0 on PRU0_R31_VEC_VALID
-*/
    __halt();                        // halt the PRU
 }
