@@ -47,7 +47,11 @@ uint16_t payload[RPMSG_BUF_SIZE];
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   uint32_t numSamples = 1000000;  // Number of samples
+=======
+  uint32_t numSamples = 100;  // Number of samples
+>>>>>>> parent of 45b2ffd... First working example of ADC data transfer from PRU to Host.
 =======
   uint32_t numSamples = 100;  // Number of samples
 >>>>>>> parent of 45b2ffd... First working example of ADC data transfer from PRU to Host.
