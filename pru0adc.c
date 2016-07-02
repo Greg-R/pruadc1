@@ -41,26 +41,8 @@ uint16_t payload[RPMSG_BUF_SIZE];
 #define PRU_SHAREDMEM 0x00010000
   volatile register uint32_t __R30;
   volatile register uint32_t __R31;
-
-//  uint32_t spiCommand = 0x80;  // Single-ended, Channel 0
   uint32_t spiCommand;
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
   uint32_t numSamples = 1000000;  // Number of samples
-=======
-  uint32_t numSamples = 100;  // Number of samples
->>>>>>> parent of 45b2ffd... First working example of ADC data transfer from PRU to Host.
-=======
-  uint32_t numSamples = 100;  // Number of samples
->>>>>>> parent of 45b2ffd... First working example of ADC data transfer from PRU to Host.
-=======
-  uint32_t numSamples = 100;  // Number of samples
->>>>>>> parent of 45b2ffd... First working example of ADC data transfer from PRU to Host.
-=======
-  uint32_t numSamples = 100;  // Number of samples
->>>>>>> parent of 45b2ffd... First working example of ADC data transfer from PRU to Host.
 
  int main(void){
     struct pru_rpmsg_transport transport;
@@ -101,31 +83,24 @@ while(1) {
 */
 //  This section of code blocks until a message is received from ARM.
 //  This is done to initialize the RPMSG communication.
-       if (__R31 & HOST_INT) {  // The interrupt from the ARM host. 
-         CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;  // Clear the event status.
-        }
+//       if (__R31 & HOST_INT) {  // The interrupt from the ARM host. 
+//         CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;  // Clear the event status.
+//        }
          //  Receive all available messages, multiple messages can be sent per kick.
         while (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) != PRU_RPMSG_SUCCESS) {}
-//    uint16_t payloadOut[1] = {123};
-//    len = 2;  //  This is the length of payloadOut in bytes.
-        //  Echo the message back to the same address from which we just received.
-//         pru_rpmsg_send(&transport, dst, src, payloadOut, len);
 
 //  2.  Initialization
-
 //   uint32_t bitMask; //    = 0x000003FF;  //  Keep only 10 bits using this mask.
 
    uint32_t data = 0x00000000;  // Incoming data stored here.
 //  The data out line is connected to R30 bit 1.
   __R30 = 0x00000000;  //  Clear the output pin.
-
 //  The sample clock is located at shared memory address 0x00010000.
 //  Need a pointer for this address.  This is found in the linker file.
 //  The address 0x0001_000 is PRU_SHAREDMEM.
    uint32_t * clockPointer = (uint32_t *) 0x00010000;
    __R30 = __R30 | (1 << 5);  // Initialize chip select HIGH.
    __delay_cycles(100000000);  //  Allow chip to stabilize.
-
 //  3.  SPI Data capture loop.  This captures numSamples data samples from the ADC.
    uint8_t dataCounter = 0;  // Used to load data transmission buffer payloadOut;
 
@@ -146,7 +121,7 @@ for(int i = 0; i < numSamples; i = i + 1) {  //  Outer loop.  This determines # 
 // The Start-bit cycle is completed.
 
 //  Get 24 bits from the data line MISO R31.t3 (bit 3)
-   for(int i = 0; i < 23; i = i + 1) {  //  Inner single sample loop
+   for(int i = 0; i < 16; i = i + 1) {  //  Inner single sample loop
 
 //  The first action will be to transmit on MOSI by shifting out spiCommand variable.
     if(spiCommand >> 31) //  If the MSB is 1 
@@ -176,7 +151,7 @@ for(int i = 0; i < numSamples; i = i + 1) {  //  Outer loop.  This determines # 
 if(dataCounter == 99){
    pru_rpmsg_send(&transport, dst, src, payload, 200);
    dataCounter = 0;
-//         CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;
+         CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;
 }
 }//  End data acquisition loop.
 

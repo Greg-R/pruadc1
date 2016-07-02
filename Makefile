@@ -20,8 +20,8 @@ all: $(SOURCES)
 	cd result
 	cp am335x-pru0-fw /lib/firmware
 	cp am335x-pru1-fw /lib/firmware
-#	prumodout
-#	prumodin
+	prumodout
+	prumodin
 
 clean:
 	rm -rf $(OBJECTS)
