@@ -14,7 +14,7 @@
 uint16_t readBuf[MAX_BUFFER_SIZE];
 //uint16_t readBuf;
 
-#define NUM_MESSAGES		1
+#define NUM_MESSAGES		9
 #define DEVICE_NAME		"/dev/rpmsg_pru30"
 
 int main(void)
@@ -44,7 +44,7 @@ int main(void)
 	for (i = 0; i < NUM_MESSAGES; i++) {
 		/* Send 'hello world!' to the PRU through the RPMsg channel */
 	//	result = write(pollfds[0].fd, "hello world!", 13);
-		result = write(pollfds[0].fd, sendPayload, 2);
+      	result = write(pollfds[0].fd, sendPayload, 2);
 		if (result > 0)
 			printf("Message %d: Sent to PRU\n", i);
 

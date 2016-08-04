@@ -149,7 +149,8 @@ for(int i = 0; i < numSamples; i = i + 1) {  //  Outer loop.  This determines # 
     payload[dataCounter] = (uint16_t) data;
     dataCounter += 1;
 if(dataCounter == 99){
-   pru_rpmsg_send(&transport, dst, src, payload, 200);
+   pru_rpmsg_send(&transport, dst, src, payload, 400);
+//        while (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) != PRU_RPMSG_SUCCESS) {}
    dataCounter = 0;
          CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;
 }
