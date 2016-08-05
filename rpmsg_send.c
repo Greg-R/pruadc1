@@ -1,6 +1,7 @@
 #include "rpmsg_send.h"
 #include <am335x/pru_cfg.h>
 
+
 	/* allow OCP master port access by the PRU so the PRU can read external memories */
 	CT_CFG.SYSCFG_bit.STANDBY_INIT = 0;
 
