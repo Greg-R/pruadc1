@@ -12,7 +12,6 @@
 #include <am335x/pru_intc.h>
 #include <am335x/pru_cfg.h>
 #include <rsc_types.h>
-#include <pru_virtqueue.h>
 #include <pru_rpmsg.h>
 #include "resource_table_0.h"
 
@@ -60,9 +59,7 @@ uint16_t payload[RPMSG_BUF_SIZE];
   while (!(*status & VIRTIO_CONFIG_S_DRIVER_OK));
 
 //  Initialize pru_virtqueue corresponding to vring0 (PRU to ARM Host direction).
-  pru_virtqueue_init(&transport.virtqueue0, &resourceTable.rpmsg_vring0, TO_ARM_HOST, FROM_ARM_HOST);
-//  Initialize pru_virtqueue corresponding to vring0 (PRU to ARM Host direction).
-  pru_virtqueue_init(&transport.virtqueue1, &resourceTable.rpmsg_vring1, TO_ARM_HOST, FROM_ARM_HOST);
+  pru_rpmsg_init(&transport, &resourceTable.rpmsg_vring0, &resourceTable.rpmsg_vring1, TO_ARM_HOST, FROM_ARM_HOST);
 
 // Create the RPMsg channel between the PRU and the ARM user space using the transport structure.
   while(pru_rpmsg_channel(RPMSG_NS_CREATE, &transport, CHAN_NAME, CHAN_DESC, CHAN_PORT) != PRU_RPMSG_SUCCESS);
@@ -87,7 +84,7 @@ while(1) {
 //         CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;  // Clear the event status.
 //        }
          //  Receive all available messages, multiple messages can be sent per kick.
-        while (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) != PRU_RPMSG_SUCCESS) {}
+    while (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) != PRU_RPMSG_SUCCESS) {}
 
 //  2.  Initialization
 //   uint32_t bitMask; //    = 0x000003FF;  //  Keep only 10 bits using this mask.
@@ -149,7 +146,7 @@ for(int i = 0; i < numSamples; i = i + 1) {  //  Outer loop.  This determines # 
     payload[dataCounter] = (uint16_t) data;
     dataCounter += 1;
 if(dataCounter == 99){
-   pru_rpmsg_send(&transport, dst, src, payload, 400);
+   pru_rpmsg_send(&transport, dst, src, payload, 200);
 //        while (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) != PRU_RPMSG_SUCCESS) {}
    dataCounter = 0;
          CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;
