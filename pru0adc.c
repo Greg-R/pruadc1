@@ -144,13 +144,12 @@ for(int i = 0; i < numSamples; i = i + 1) {  //  Outer loop.  This determines # 
 
 //  Send frames of 100 samples.   
     payload[dataCounter] = (uint16_t) data;
-    dataCounter += 1;
+//      payload[dataCounter] = 299;
 if(dataCounter == 99){
    pru_rpmsg_send(&transport, dst, src, payload, 200);
-//        while (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) != PRU_RPMSG_SUCCESS) {}
    dataCounter = 0;
-         CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;
 }
+   dataCounter = dataCounter + 1;
 }//  End data acquisition loop.
 
 //   __R31 = 35;                      // PRUEVENT_0 on PRU0_R31_VEC_VALID

@@ -11,10 +11,10 @@
 #include <sys/poll.h>
 
 #define MAX_BUFFER_SIZE		512
-uint16_t readBuf[MAX_BUFFER_SIZE];
+uint8_t readBuf[MAX_BUFFER_SIZE];
 //uint16_t readBuf;
 
-#define NUM_MESSAGES		9
+#define NUM_MESSAGES		1
 #define DEVICE_NAME		"/dev/rpmsg_pru30"
 
 int main(void)
@@ -52,7 +52,7 @@ int main(void)
 		result = read(pollfds[0].fd, readBuf, MAX_BUFFER_SIZE);
 		if (result > 0)
                    for(int i=0; i < 100; i++){
-			printf("Message %d received from PRU:%" PRIu16 "\n", i, readBuf[i]);
+			printf("Message %d received from PRU:%" PRIu8 "\n", i, readBuf[i]);
                        }
 	}
 

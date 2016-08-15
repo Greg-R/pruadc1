@@ -14,7 +14,7 @@ LNK_CMDS3=--heap_size=0x100 --library=$(PRU_CGT)/lib/rpmsg_lib.lib
 all: $(SOURCES)
 	clpru $(CFLAGS) pru0adc.c $(LNK_CMDS1) $(LNK_CMDS2) $(LNK_CMDS3) ./AM335x_PRU.cmd -o am335x-pru0-fw --library=libc.a 
 	clpru $(CFLAGS) pru1adc.c $(LNK_CMDS1) $(LNK_CMDS2) $(LNK_CMDS3) ./AM335x_PRU.cmd -o am335x-pru1-fw --library=libc.a 
-	clpru $(CFLAGS) pruSimData.c $(LNK_CMDS1) $(LNK_CMDS2) $(LNK_CMDS3) ./AM335x_PRU.cmd -o prusimdata --library=libc.a 
+	clpru $(CFLAGS) pruslowstream.c $(LNK_CMDS1) $(LNK_CMDS2) $(LNK_CMDS3) ./AM335x_PRU.cmd -o  pruslowstream --library=libc.a 
 	clang rpmsg_data_read.c -o rpmsgread
 	cp am335x-pru0-fw ./result
 	cp am335x-pru1-fw ./result

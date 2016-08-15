@@ -35,7 +35,7 @@ uint16_t payload[RPMSG_BUF_SIZE];
   volatile register uint32_t __R30;
   volatile register uint32_t __R31;
   uint32_t spiCommand;
-  uint32_t numSamples = 10;  // Number of samples
+  uint32_t numSamples = 500;  // Number of samples
 
  int main(void){
     struct pru_rpmsg_transport transport;
@@ -54,6 +54,8 @@ uint16_t payload[RPMSG_BUF_SIZE];
 
 //  Initialize pru_virtqueue corresponding to vring0 (PRU to ARM Host direction).
   pru_rpmsg_init(&transport, &resourceTable.rpmsg_vring0, &resourceTable.rpmsg_vring1, TO_ARM_HOST, FROM_ARM_HOST);
+//  This creates the device driver /dev/rpmsg_pru30:
+while(pru_rpmsg_channel(RPMSG_NS_CREATE, &transport, CHAN_NAME, CHAN_DESC, CHAN_PORT) != PRU_RPMSG_SUCCESS);
 
 //  This section of code blocks until a message is received from ARM.
 //  This is done to initialize the RPMSG communication.
@@ -68,11 +70,11 @@ uint16_t payload[RPMSG_BUF_SIZE];
 
 for(uint16_t i = 0; i < numSamples; i = i + 1) {  //  Outer loop.  This determines # samples.
 
-    data = i;
+//    data = i;
 
 //  Send frames of 100 samples.   
-    payload[dataCounter] = (uint16_t) data;
-    dataCounter += 1;
+    payload[dataCounter] = i;
+    dataCounter = dataCounter + 1;
 
 if(dataCounter == 99){
    pru_rpmsg_send(&transport, dst, src, payload, 200);

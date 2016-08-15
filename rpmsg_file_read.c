@@ -12,7 +12,6 @@
 
 #define MAX_BUFFER_SIZE	1024	
 uint16_t readBuf[MAX_BUFFER_SIZE];
-//uint16_t readBuf;
 
 #define NUM_MESSAGES		1
 #define DEVICE_NAME		"/dev/rpmsg_pru30"
@@ -21,9 +20,10 @@ int main(void)
 {
 //	struct pollfd pollfds[1];
         int fd1; // File descriptor for the character file.
-	int i;
+	int i, dataIndex;
 	int result = 0;
         uint16_t sendPayload[1] = {29};
+        FILE* prudata = fopen("prudata.txt", "w");
 
 	/* Open the rpmsg_pru character device file */
 	fd1 = open(DEVICE_NAME, O_RDWR);
@@ -41,26 +41,23 @@ int main(void)
 
 	/* The RPMsg channel exists and the character device is opened */
 	printf("Opened %s\n\n", DEVICE_NAME);
-
-        result = read(fd1, readBuf, MAX_BUFFER_SIZE);
-        if (result > 0)
-         for(int i=0; i < 1024/4; i=i+1){
-	     printf("Message %d received from PRU: %" PRIu16 "\n", i, readBuf[i]);
+       dataIndex = 0;
+       // result = read(fd1, readBuf, 1);
+       // if (result > 0)
+       
+         for(int i=0; i < 10; i=i+1){
+             result = read(fd1, readBuf, 200);
+	     printf(" %" PRIu16 " %" PRIu16 " %" PRIu16 " %" PRIu16 " %" PRIu16
+             " %" PRIu16 " %" PRIu16 " %" PRIu16 " %" PRIu16 " %" PRIu16 "\n", 
+             readBuf[0], readBuf[1], readBuf[2], readBuf[3], readBuf[4], readBuf[5],
+             readBuf[6], readBuf[7], readBuf[8], readBuf[9]);
+        for(int i=0; i < 100; i = i + 1){
+        fprintf(prudata, " %d %" PRIu16 "\n", i + dataIndex, readBuf[i]);
+        }
+        dataIndex = dataIndex + 100;
         }
 
-/*
-        result = read(fd1, readBuf, MAX_BUFFER_SIZE);
-        if (result > 0)
-         for(int i=0; i < 1024/4; i=i+4){
-	     printf("Message %d received from PRU: %" PRIu16 " %" PRIu16 " %" PRIu16 " %" PRIu16 "\n", i, readBuf[i], readBuf[i+1], readBuf[i+2], readBuf[i+3]);
-        }
-        result = read(fd1, readBuf, MAX_BUFFER_SIZE);
-        if (result > 0)
-         for(int i=0; i < 1024/4; i=i+4){
-	     printf("Message %d received from PRU: %" PRIu16 " %" PRIu16 " %" PRIu16 " %" PRIu16 "\n", i, readBuf[i], readBuf[i+1], readBuf[i+2], readBuf[i+3]);
-        }
-*/
-
+        fclose(prudata);
 	close(fd1);
 	return 0;
 }
