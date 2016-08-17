@@ -19,13 +19,14 @@ volatile register uint32_t __R30;
 
 //  The LED is connected to P8.44 which is bit 3 of R30.
 //  Wait a bunch of clock cycles, then write 1 to clockPointer and blink LED:
- for(int i = 0; i < 20000; i = i + 0 ) {
+// for(int i = 0; i < 20000; i = i + 0 ) {
+while(1) {
   __R30 = __R30 | (1 << 3);
   *clockPointer = 1;
-  __delay_cycles(10000);  //  Human perceivable delay.
+  __delay_cycles(1000);  //  Human perceivable delay.
   *clockPointer = 0;
   __R30 = __R30 & (0 << 3);
-  __delay_cycles(140000);  //  Human perceivable delay.
+  __delay_cycles(24000);  //  Human perceivable delay.
   }
 /*
   *clockPointer = 0;
@@ -33,5 +34,5 @@ volatile register uint32_t __R30;
   __R30 = 0;
   }
 */
-   __halt();                        // halt the PRU
+//   __halt();                        // halt the PRU
  }

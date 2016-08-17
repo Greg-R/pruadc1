@@ -111,9 +111,9 @@ for(int i = 0; i < numSamples; i = i + 1) {  //  Outer loop.  This determines # 
    __R30 = __R30 & 0xFFFFFFFB;  //  Clock to LOW   P9.30
 //  Start-bit is HIGH.  The Start-bit is manually clocked in here.
    __R30 = __R30 | (1 << 1);  //  Set a 0x10 on MOSI (the Start-bit)
-   __delay_cycles(2500);  //  Delay to allow settling.
+   __delay_cycles(500);  //  Delay to allow settling.
    __R30 = __R30 | 0x00000004;  //  Clock goes high; latch in start bit.
-   __delay_cycles(2500);  //  Delay to allow settling.
+   __delay_cycles(500);  //  Delay to allow settling.
    __R30 = __R30 & 0xFFFFFFFB;  //  Clock to LOW   P9.30
 // The Start-bit cycle is completed.
 
@@ -126,9 +126,9 @@ for(int i = 0; i < numSamples; i = i + 1) {  //  Outer loop.  This determines # 
     else 
     __R30 = __R30 & (0xFFFFFFFD);  //  All 1s except bit 1
     spiCommand = spiCommand << 1;  // Shift left one bit (for next cycle).
-   __delay_cycles(2500);
+   __delay_cycles(500);
    __R30 = __R30 | 0x00000004;  //  Clock goes high; bit set on MOSI.
-   __delay_cycles(2500);  //  Delay to allow settling.
+   __delay_cycles(500);  //  Delay to allow settling.
     
 //  The data needs to be "shifted" into the data variable.
     data = data << 1;  // Shift left; insert 0 at lsb.
