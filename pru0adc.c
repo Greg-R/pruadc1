@@ -143,10 +143,10 @@ for(int i = 0; i < numSamples; i = i + 1) {  //  Outer loop.  This determines # 
    __R30 = __R30 | 1 << 5;  //  Chip select to HIGH
 
 //  Send frames of 100 samples.   
-    payload[dataCounter] = (uint16_t) data;
+    payload[dataCounter] = (int16_t) data - 512;
 //      payload[dataCounter] = 299;
-if(dataCounter == 99){
-   pru_rpmsg_send(&transport, dst, src, payload, 200);
+if(dataCounter == 199){
+   pru_rpmsg_send(&transport, dst, src, payload, 400);
    dataCounter = 0;
 }
    dataCounter = dataCounter + 1;
