@@ -42,6 +42,7 @@ uint16_t payload[RPMSG_BUF_SIZE];
   volatile register uint32_t __R31;
   uint32_t spiCommand;
   uint32_t numSamples = 1000000;  // Number of samples
+  uint16_t msg_count = 0;
 
  int main(void){
     struct pru_rpmsg_transport transport;
@@ -148,7 +149,9 @@ for(int i = 0; i < numSamples; i = i + 1) {  //  Outer loop.  This determines # 
 if(dataCounter == 199){
    pru_rpmsg_send(&transport, dst, src, payload, 400);
    dataCounter = 0;
+   msg_count = msg_count + 1;
 }
+   if(msg_count == 31) __halt();
    dataCounter = dataCounter + 1;
 }//  End data acquisition loop.
 
