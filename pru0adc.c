@@ -36,7 +36,7 @@
 #define VIRTIO_CONFIG_S_DRIVER_OK  4
 
 //  Buffer used for PRU to ARM communication.
-uint16_t payload[RPMSG_BUF_SIZE];
+  uint16_t payload[RPMSG_BUF_SIZE];
 
 #define PRU_SHAREDMEM 0x00010000
   volatile register uint32_t __R30;
@@ -103,7 +103,8 @@ while(1) {
 //  3.  SPI Data capture loop.  This captures numSamples data samples from the ADC.
    uint8_t dataCounter = 0;  // Used to load data transmission buffer payloadOut;
 
-for(int i = 0; i < numSamples; i = i + 1) {  //  Outer loop.  This determines # samples.
+// for(int i = 0; i < numSamples; i = i + 1) {  //  Outer loop.  This determines # samples.
+  while(1) {
  while(!(*clockPointer)){}  //  Hold until the Master clock from PRU1 goes high.
 
 //  spiCommand is the MOSI preamble; must be reset for each sample.
@@ -145,16 +146,15 @@ for(int i = 0; i < numSamples; i = i + 1) {  //  Outer loop.  This determines # 
    __R30 = __R30 | 1 << 5;  //  Chip select to HIGH
 
 //  Send frames of 100 samples.   
-    payload[dataCounter] = (int16_t) data - 512;
+    payload[dataCounter] = 50 * ((int16_t) data - 512);
     dataCounter = dataCounter + 1;
 
-//      payload[dataCounter] = 299;
 if(dataCounter == 200){
    pru_rpmsg_send(&transport, dst, src, payload, 400);
    dataCounter = 0;
    msg_count = msg_count + 1;
 }
-   if(msg_count == 31) __halt();
+//   if(msg_count == 31) __halt();
 }//  End data acquisition loop.
 
 //   __R31 = 35;                      // PRUEVENT_0 on PRU0_R31_VEC_VALID
