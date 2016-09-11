@@ -103,9 +103,13 @@ while(1) {
 //  3.  SPI Data capture loop.  This captures numSamples data samples from the ADC.
    uint8_t dataCounter = 0;  // Used to load data transmission buffer payloadOut;
 
+//  The following is a hack to solve a problem with the loop running
+// while(!(*clockPointer)){__delay_cycles(5);}  //  Hold until the Master clock from PRU1 goes high.
+
 // for(int i = 0; i < numSamples; i = i + 1) {  //  Outer loop.  This determines # samples.
   while(1) {
- while(!(*clockPointer)){}  //  Hold until the Master clock from PRU1 goes high.
+// while(!(*clockPointer)){__delay_cycles(5);}  //  Hold until the Master clock from PRU1 goes high.
+   while(!(*clockPointer == 7)){__delay_cycles(5);}  //  Hold until the Master clock from PRU1 goes high.
 
 //  spiCommand is the MOSI preamble; must be reset for each sample.
    spiCommand = 0x80000000;  // Single-ended Channel 0
