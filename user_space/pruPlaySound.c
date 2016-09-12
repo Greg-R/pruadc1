@@ -44,7 +44,20 @@ int main(void)
 	result = write(pru0_fd, "prime", 6);
 		if (result > 0)
 			printf("PRU0 character device successfully primed.\n");
+        
+        //  Open the PRU1 character device file.
+        pru1_fd = open(PRU1_DEVICE, O_RDWR);
 
+	if (pru1_fd < 0) {
+		printf("Failed to open %s\n", PRU0_DEVICE);
+                return -1;
+        }
+
+        //  Start the clock pulses from PRU1.
+        result = write(pru1_fd, "g", 2);
+        if (result > 0)
+            printf("PRU1 clock signal successfully written.\n");
+        close(pru1_fd);
 	close(pru0_fd);
 
 	return 0;
