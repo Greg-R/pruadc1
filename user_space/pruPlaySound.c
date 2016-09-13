@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <inttypes.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -22,6 +24,7 @@ uint16_t readBuf[MAX_BUFFER_SIZE];
 int main(void)
 {
 	int pru0_fd, pru1_fd;
+        int soundfifo;
 	int result = 0;
 
 	// Open the PRU0 character device file.
@@ -57,9 +60,24 @@ int main(void)
         result = write(pru1_fd, "g", 2);
         if (result > 0)
             printf("PRU1 clock signal successfully written.\n");
-        close(pru1_fd);
-	close(pru0_fd);
+        close(pru1_fd);  //  May need to leave this open if other control features added.
 
+        //  Now create a named pipe.  This will be used
+        //  to buffer the data between the PRU character
+        //  device and ALSA.  It may be possible to operate
+        //  without this pipe, but this is how the first
+        //  successful sound was played via the command line.
+
+        soundfifo = mkfifo("soundfifo", O_RDWR);        
+        if(soundfifo < 0) printf("Creation of soundfifo named pipe failed.\n");
+        
+        //  Create a process running ALSA aplay reading data from soundfifo.
+        //fork();
+        char *arguments[] = {"aplay", "--format=S16_LE", "-Dplughw:1,0", "soundfifo", NULL};
+        result = execv("/usr/bin/aplay", arguments);
+        printf("The value returned by execve(aplay) is %d.\n", result);
+
+	close(pru0_fd);
 	return 0;
 }
 
