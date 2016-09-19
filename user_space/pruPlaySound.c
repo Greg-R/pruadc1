@@ -74,7 +74,7 @@ int main(void)
         //  Create a process running ALSA aplay reading data from soundfifo.
         //fork();
         char *arguments[] = {"aplay", "--format=S16_LE", "-Dplughw:1,0", "soundfifo", NULL};
-        result = execv("/usr/bin/aplay", arguments);
+        result = execvp("aplay", arguments);
         printf("The value returned by execve(aplay) is %d.\n", result);
 
 	close(pru0_fd);
