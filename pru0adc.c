@@ -36,20 +36,17 @@
 #define VIRTIO_CONFIG_S_DRIVER_OK  4
 
 //  Buffer used for PRU to ARM communication.
-  uint16_t payload[RPMSG_BUF_SIZE];
+  int16_t payload[256];
 
 #define PRU_SHAREDMEM 0x00010000
   volatile register uint32_t __R30;
   volatile register uint32_t __R31;
   uint32_t spiCommand;
-  uint32_t numSamples = 1000000;  // Number of samples
-  uint16_t msg_count = 0;
 
  int main(void){
     struct pru_rpmsg_transport transport;
     uint16_t src, dst, len;
     volatile uint8_t *status;
-//    uint16_t payloadOut[100];
 
 //  1.  Enable OCP Master Port
   CT_CFG.SYSCFG_bit.STANDBY_INIT = 0;
@@ -68,28 +65,10 @@
 //  The above code should cause an RPMsg character to device to appear in the directory /dev.  
 //  The following is a test loop.  Comment this out for normal operation.
 
-/*
-while(1) {
-       if (__R31 & HOST_INT) {  // Clear the event status.
-         CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;
-         //  Receive all available messages, multiple messages can be sent per kick.
-        while (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) == PRU_RPMSG_SUCCESS) {
-    uint16_t payloadOut[1] = {123};
-//    len = 2;  //  This is the length of payloadOut in bytes.
-        //  Echo the message back to the same address from which we just received.
-               pru_rpmsg_send(&transport, dst, src, payloadOut, len);
-         }}}
-*/
 //  This section of code blocks until a message is received from ARM.
-//  This is done to initialize the RPMSG communication.
-//       if (__R31 & HOST_INT) {  // The interrupt from the ARM host. 
-//         CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;  // Clear the event status.
-//        }
-         //  Receive all available messages, multiple messages can be sent per kick.
     while (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) != PRU_RPMSG_SUCCESS) {}
 
 //  2.  Initialization
-//   uint32_t bitMask; //    = 0x000003FF;  //  Keep only 10 bits using this mask.
 
    uint32_t data = 0x00000000;  // Incoming data stored here.
 //  The data out line is connected to R30 bit 1.
@@ -101,14 +80,11 @@ while(1) {
    __R30 = __R30 | (1 << 5);  // Initialize chip select HIGH.
    __delay_cycles(100000000);  //  Allow chip to stabilize.
 //  3.  SPI Data capture loop.  This captures numSamples data samples from the ADC.
-   uint8_t dataCounter = 0;  // Used to load data transmission buffer payloadOut;
+   uint16_t dataCounter = 0;  // Used to load data transmission buffer payloadOut;
 
 //  The following is a hack to solve a problem with the loop running
 // while(!(*clockPointer)){__delay_cycles(5);}  //  Hold until the Master clock from PRU1 goes high.
-
-// for(int i = 0; i < numSamples; i = i + 1) {  //  Outer loop.  This determines # samples.
   while(1) {
-// while(!(*clockPointer)){__delay_cycles(5);}  //  Hold until the Master clock from PRU1 goes high.
    while(!(*clockPointer == 7)){__delay_cycles(5);}  //  Hold until the Master clock from PRU1 goes high.
 
 //  spiCommand is the MOSI preamble; must be reset for each sample.
@@ -140,7 +116,6 @@ while(1) {
 //  The data needs to be "shifted" into the data variable.
     data = data << 1;  // Shift left; insert 0 at lsb.
    __R30 = __R30 & 0xFFFFFFFB;  //  Clock to LOW   P9.30
-//   __delay_cycles(2500);  //  Delay to allow settling.
 
     if(__R31 & (1 << 3)) //  Probe MISO data from ADC.
     data = data | 1;
@@ -149,16 +124,18 @@ while(1) {
   }  //  End of 24 cycle loop
    __R30 = __R30 | 1 << 5;  //  Chip select to HIGH
 
-//  Send frames of 100 samples.   
+//  Send frames of 245 samples.
+//  The entire buffer size of 512 can't be used for
+//  data.  Some space is required by the "header".
+//  The data is offset by 512 and then multiplied
+//  to make appropriately scaled 16 bit signed integers.   
     payload[dataCounter] = 50 * ((int16_t) data - 512);
     dataCounter = dataCounter + 1;
 
-if(dataCounter == 200){
-   pru_rpmsg_send(&transport, dst, src, payload, 400);
+if(dataCounter == 245){
+   pru_rpmsg_send(&transport, dst, src, payload, 490);
    dataCounter = 0;
-   msg_count = msg_count + 1;
 }
-//   if(msg_count == 31) __halt();
 }//  End data acquisition loop.
 
 //   __R31 = 35;                      // PRUEVENT_0 on PRU0_R31_VEC_VALID

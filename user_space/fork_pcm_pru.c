@@ -35,29 +35,28 @@ int main(int argc, char **argv)
 	
 	if(!forkit) {  //  This is the parent process.
 		int result;
-        char *arguments[] = {"aplay", "--format=S16_LE", "-Dplughw:1,0", "--rate=44100", "soundfifo", NULL};
+        char *arguments[] = {"aplay", "--format=S16_LE", "-Dplughw:1,0", "--rate=8000", "soundfifo", NULL};
         result = execvp("aplay", arguments);
         printf("The return value of execvp(aplay) is %d.\n", result);
 	}
 	else if (forkit > 0) {  //  This is the child process.
 	
-	double deltaT = 2.0 * M_PI/(44100.0/440.0);
-	double sinOperand = 0.0;
-	
         //  Now, in the child process, open the PRU character device.
         //  Read data from it in chunks and write to the named pipe.
-
-        int count = 0;
+        ssize_t readpru, writepipe;
 	int16_t pcm_int_sample = 0;
 	soundfifo = open("soundfifo", O_RDWR);  // Open named pipe.
+        if(soundfifo < 0) printf("Failed to open soundfifo.");
 	pru_data  = open("/dev/rpmsg_pru30", O_RDWR);  // Open char device.
-		for(int i=0; i < 20000000; i++) {
-                read(pru_data, sinebuf, 512);
-		write(soundfifo, sinebuf, 512);
+        if(pru_data < 0) printf("Failed to open pru character device rpmsg_pru30.");
+        //  This is the main data transfer loop.
+        for(int i=0; i < 20000000; i++) {
+                readpru = read(pru_data, sinebuf, 512);
+		writepipe = write(soundfifo, sinebuf, 512);
 	}
+        printf("The last value of readpru is %d and the last value of writepipe is %d.\n", readpru, writepipe);
 	}
-
-else if (forkit == -1) perror("fork error");
-}
+        else if (forkit == -1) perror("fork error");
+        }
 
 
