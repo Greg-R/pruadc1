@@ -28,18 +28,10 @@
 #include <unistd.h>
 
 int main(int argc, char **argv) {
-  //	int8_t makefifo;
   int soundfifo, pru_data, pru_clock; // file descriptors
   pid_t forkit;
   //  Open a file in write mode.
   uint8_t sinebuf[490];
-
-  //  Create a named pipe.
-  //	makefifo = mkfifo("soundfifo", O_RDWR);
-  //	if(makefifo < 0) printf("Named pipe soundfifo creation failed.");
-
-  //  The sample rate is 44100 samples per second.
-  //  Compute delta-t, a single sample interval.
 
   //  Split into two processes.
   //  The parent will consume the data.
@@ -60,7 +52,8 @@ int main(int argc, char **argv) {
     soundfifo = open("soundfifo", O_RDWR); // Open named pipe.
     if (soundfifo < 0)
       printf("Failed to open soundfifo.");
-    pru_data = open("/dev/rpmsg_pru30", O_RDWR); // Open char device.
+    //  Open the character device to PRU0.
+    pru_data = open("/dev/rpmsg_pru30", O_RDWR);
     if (pru_data < 0)
       printf("Failed to open pru character device rpmsg_pru30.");
     //  The character device must be "primed".
@@ -73,6 +66,8 @@ int main(int argc, char **argv) {
     if (pru_clock_command < 0)
       printf("The pru clock start command failed.");
     //  This is the main data transfer loop.
+    //  Note that the number of transfers is finite.
+    //  This can be changed to a while(1) to run forever.
     for (int i = 0; i < 20000000; i++) {
       readpru = read(pru_data, sinebuf, 490);
       writepipe = write(soundfifo, sinebuf, 490);

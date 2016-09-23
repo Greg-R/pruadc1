@@ -20,18 +20,10 @@ LNK_CMDS1=-z -i$(PRU_CGT)/lib -i$(PRU_CGT)/include -i$(PRU_CGT)/includeSupportPa
 LNK_CMDS2=-i$(PRU_CGT)/includeSupportPackage/am335x --reread_libs --stack_size=0x100
 LNK_CMDS3=--heap_size=0x100 --library=$(PRU_CGT)/lib/rpmsg_lib.lib
 
-#SOURCES=$(wildcard *.c)
-#OBJECTS=$(patsubst %.c,%.o,$(SOURCES))
-
-#SOURCES=pru0adc.c
-
 all: $(SOURCES)
 	clpru $(CFLAGS) pru0adc.c $(LNK_CMDS1) $(LNK_CMDS2) $(LNK_CMDS3) ./AM335x_PRU.cmd -o ./result/am335x-pru0-fw --library=libc.a 
 	clpru $(CFLAGS) pru1adc.c $(LNK_CMDS1) $(LNK_CMDS2) $(LNK_CMDS3) ./AM335x_PRU.cmd -o ./result/am335x-pru1-fw --library=libc.a 
-#	clpru $(CFLAGS) pruNumbers.c $(LNK_CMDS1) $(LNK_CMDS2) $(LNK_CMDS3) ./AM335x_PRU.cmd -o pruNumbers --library=libc.a 
-#	clang rpmsg_data_read.c -o rpmsgread
-#	cp am335x-pru0-fw ./result
-#	cp am335x-pru1-fw ./result
+	gcc -std=c99 ./user_space/fork_pcm_pru.c -o fork_pcm_pru
 	cd result
 	cp ./result/am335x-pru0-fw /lib/firmware
 	cp ./result/am335x-pru1-fw /lib/firmware
@@ -39,4 +31,3 @@ all: $(SOURCES)
 	prumodin
 
 clean:
-	rm -rf $(OBJECTS)

@@ -80,7 +80,8 @@ int main(void) {
                            CHAN_PORT) != PRU_RPMSG_SUCCESS)
     ;
   //  The following code looks for a specific incoming message via RPMsg.
-  //  If the correct message is receive, the clock is allowed to begin.
+  //  This code blocks until the message is successfully received.
+  //  If the correct message is received, the clock is allowed to begin.
   while (1) {
     /* Check bit 30 of register R31 to see if the ARM has kicked us */
     if (__R31 & HOST_INT) {
@@ -97,7 +98,7 @@ int main(void) {
   }
 
   //  The following is the code for the clock which is used to drive the SPI in
-  //  PRU0.
+  //  PRU0.  The clock rate is approximately 8 kHz.
 
   //  The sample clock is located at shared memory address 0x00010000.
   //  Need a pointer for this address.  This is found in the linker file.
@@ -105,23 +106,14 @@ int main(void) {
   uint32_t *clockPointer = (uint32_t *)0x00010000;
   *clockPointer = 0; //  Clear this memory location.
 
-  //  The LED is connected to P8.44 which is bit 3 of R30.
-  //  Wait a bunch of clock cycles, then write 1 to clockPointer and blink LED:
-  // for(int i = 0; i < 20000; i = i + 0 ) {
   while (1) {
     __R30 = __R30 | (1 << 3);
     *clockPointer = 7;
-    __delay_cycles(1000); //  Human perceivable delay.
+    __delay_cycles(1000); 
     *clockPointer = 0;
     __R30 = __R30 & (0 << 3);
-    //  This delay was originally 24000 cycles; reduced due to ALSA underruns.
-    __delay_cycles(23980); //  Human perceivable delay.
+    //  The following delay will set the clock rate.
+    //  This delay was originally 24000 cycles; it was reduced due to ALSA underruns.
+    __delay_cycles(23980); 
   }
-  /*
-    *clockPointer = 0;
-    if(*clockPointer == 0) {
-    __R30 = 0;
-    }
-  */
-  //   __halt();                        // halt the PRU
 }
