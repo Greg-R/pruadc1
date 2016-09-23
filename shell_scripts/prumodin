@@ -1,4 +1,9 @@
 #!/bin/bash
+#  This script is used to activate the firmware on the PRUs.
+
+#  The following line is a generic command formerly used
+#  to insert the pruss.ko module.
+#  The sysfs method below is preferred.
 #insmod /lib/modules/$(uname -r)/kernel/drivers/remoteproc/pruss.ko
 
 echo "4a334000.pru0" > /sys/bus/platform/drivers/pru-rproc/bind

@@ -1,4 +1,9 @@
 #!/bin/bash
+#  This script is used to deactivate firmware on the PRUs.
+
+#  The following are generic commands formerly used to
+#  control firmware execution on the PRUs.
+#  The sysfs commands below are preferred.
 #rmmod pruss
 #rmmod pru_rproc
 #rmmod -f pruss_intc
