@@ -1,0 +1,10 @@
+#!/bin/bash
+#rmmod pruss
+#rmmod pru_rproc
+#rmmod -f pruss_intc
+#rmmod rpmsg_pru
+#rmmod virtio_rpmsg_bus
+
+echo "4a334000.pru0" > /sys/bus/platform/drivers/pru-rproc/unbind
+echo "4a338000.pru1"  > /sys/bus/platform/drivers/pru-rproc/unbind
+

@@ -1,0 +1,6 @@
+#!/bin/bash
+#insmod /lib/modules/$(uname -r)/kernel/drivers/remoteproc/pruss.ko
+
+echo "4a334000.pru0" > /sys/bus/platform/drivers/pru-rproc/bind
+echo "4a338000.pru1" > /sys/bus/platform/drivers/pru-rproc/bind
+
