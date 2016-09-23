@@ -90,7 +90,8 @@ while(1) {
   __delay_cycles(1000);  //  Human perceivable delay.
   *clockPointer = 0;
   __R30 = __R30 & (0 << 3);
-  __delay_cycles(24000);  //  Human perceivable delay.
+//  This delay was originally 24000 cycles; reduced due to ALSA underruns.
+  __delay_cycles(23980);  //  Human perceivable delay.
   }
 /*
   *clockPointer = 0;
