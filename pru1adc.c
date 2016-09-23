@@ -1,5 +1,5 @@
 //  This code runs in PRU1.
-//  The clock output test pin is P8.44
+//  The clock output test pin is P8.30
 //  The clock is started by writing a code
 //  to a device driver opened by this file.
 //  Copyright (C) 2016  Gregory Raven
@@ -107,11 +107,11 @@ int main(void) {
   *clockPointer = 0; //  Clear this memory location.
 
   while (1) {
-    __R30 = __R30 | (1 << 3);
+    __R30 = __R30 | (1 << 11);
     *clockPointer = 7;
     __delay_cycles(1000); 
     *clockPointer = 0;
-    __R30 = __R30 & (0 << 3);
+    __R30 = __R30 & (0 << 11);
     //  The following delay will set the clock rate.
     //  This delay was originally 24000 cycles; it was reduced due to ALSA underruns.
     __delay_cycles(23980); 

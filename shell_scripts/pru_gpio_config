@@ -11,7 +11,7 @@ export SLOTS=/sys/devices/platform/bone_capemgr
 #  https://github.com/cdsteinkuehler/beaglebone-universal-io
 
 echo univ-emmc > $SLOTS/slots 
-config-pin P8.44 pruout
+config-pin P8.30 pruout
 config-pin P9.31 pruout
 config-pin P9.27 pruout
 config-pin P9.29 pruout
