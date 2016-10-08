@@ -45,6 +45,8 @@ http://www.ti.com/lit/ug/spruhv7a/spruhv7a.pdf
 
 A crude video describing the project is at youtube:
 
+https://youtu.be/i-ZcPAvkQVU
+
 Hopefully I can improve the quality of this video in the near future!
 
 Greg
