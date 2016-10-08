@@ -3,3 +3,11 @@
 *.map
 *.obj
 i*-fw
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.odg
+*.ipe
+
