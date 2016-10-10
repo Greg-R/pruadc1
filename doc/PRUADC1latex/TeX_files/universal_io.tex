@@ -1,0 +1,58 @@
+\chapter{Universal IO and Connecting PRU to the Outside World}
+
+This project did not require a custom ``Device Tree Overlay''.  Instead, the ``Universal IO'' driver was used along with a simple shell script.
+
+The Universal IO project is located at this Github project:
+
+\url{https://github.com/cdsteinkuehler/beaglebone-universal-io}
+
+The configuration is as follows:
+
+\begin{verbatim}
+config-pin P8.44 pruout
+config-pin P9.31 pruout
+config-pin P9.27 pruout
+config-pin P9.29 pruout
+config-pin P9.28 pruin
+config-pin P9.30 pruout
+\end{verbatim}
+
+The above can also be put into a file, for example ``pru-config'':
+
+\begin{verbatim}
+P8.44 pruout
+P9.31 pruout
+P9.27 pruout
+P9.29 pruout
+P9.28 pruin
+P9.30 pruout
+\end{verbatim}
+
+The command to load the above would be:
+
+config-pin -f pru-config
+
+Note that another step required is create the \$SLOTS environment variable
+and also to set on of the Universal-IO device trees as follows:
+
+\begin{verbatim}
+export SLOTS=/sys/devices/platform/bone_capemgr
+echo univ-emmc > $SLOTS/slots 
+\end{verbatim}
+
+
+\subsection{The PRU GPIO Spreadsheet}
+
+Use ``git clone'' to download this repository:
+
+\url{https://github.com/selsinork/beaglebone-black-pinmux}
+
+The spreadsheet file contained in this repository is pinmux.ods.
+The LibreOffice suite has a spreadsheet application which will read
+this file.
+
+This spreadsheet is extremely useful when configuring the PRU or
+other functions to the Beaglebone pin multiplexer.
+
+
+
