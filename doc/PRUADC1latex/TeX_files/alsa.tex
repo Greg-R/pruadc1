@@ -1,3 +1,19 @@
 \chapter{Incorporating Advanced Linux Sound Architecture or ``ALSA''}
 
-Pulse Code Modulation
+The system generates a stream of audio data samples at a rate of 8 kHz.  This data could be stored to memory and later manipulated.  Derek Molloy's project used ``GNU Plot'' to graph data captured by the ADC-PRU system and stored to the Beaglebone's memory (RAM).
+
+One of the primary goals of this project was to investigate real-time data "streaming".  So rather than a static capture, it was decided that the data stream would be somehow extracted from the system and ``played'' to an analog speaker.
+
+The primary sound system in GNU/Linux is called the ``Advanced Linux Sound Architecture''.  This system is very mature and flexible, and also it has a very complex Applications Programming Interface (API).
+
+Fortunately the ALSA system includes command line utilities which made meeting the project goals very simple!
+
+\subsection{Pulse Code Modulation}
+
+What kind of data is delivered by the PRU as it reads the ADC via SPI bus?
+
+The ADC samples data with a ``resolution'' of 10 bits.  What this means is that the analog input of the ADC is ``quantized'' into $2^{10}$ or 1024 slices.
+
+The ADC is capable of handling an input range from a little bit above 0 Volts to a little bit below 3.3 Volts.  So a good approximation is a 3.0 Volts range.  Splitting this into 1024 slices yields:
+
+\[ \frac{\text{3.0 Volts}}{1024}  = \text{2.9 millivolts per step} \]
