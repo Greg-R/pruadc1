@@ -10,4 +10,6 @@ i*-fw
 *.synctex.gz
 *.odg
 *.ipe
+*.lof
+*.lot
 
