@@ -1,4 +1,4 @@
-\documentclass[a4paper,12pt]{book}
+\documentclass[oneside,a4paper,12pt]{book}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{charter}
@@ -7,18 +7,26 @@
 \usepackage{graphicx}
 \usepackage[colorlinks=true, linkcolor=red]{hyperref}
 \usepackage{amsmath}
+\usepackage{titling,lipsum}
+\title{This is title of my document}
 
 \begin{document}
+\include{cover/cover}
 
-\author{Gregory Raven}
-\title{Using the Beaglebone Black Programmable Real-Time Unit with the RemoteProc and Remote Messaging Framework to Capture and Play Data from an ADC}
-\date{October 2016}
+%\setcounter{page}{1}
 
-%\include{cover/cover}
+%\author{Gregory Raven}
+%\title{Using the Beaglebone Black Programmable Real-Time Unit with the RemoteProc %and %Remote Messaging Framework to Capture and Play Data from an ADC}
+%\date{October 2016}
+
+%
 \frontmatter
 
-\maketitle
+%\maketitle
 \tableofcontents
+\listoftables
+\listoffigures
+%\maketitle
 
 \mainmatter
 \include{./TeX_files/introduction}
