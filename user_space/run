@@ -1,7 +1,0 @@
-#!/bin/bash
-
-prumodout
-prumodin
-echo test > /dev/rpmsg_pru30
-./rpmsgread
-
