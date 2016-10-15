@@ -16,16 +16,18 @@
 
 \chapter{Introduction}
 
-This is the documentation for a small embedded GNU/Linux project utilizing the RemoteProc and RPMsg framework in the Beaglebone Green (BBG) development board.
+This is the documentation for a small embedded GNU/Linux project utilizing the RemoteProc and RPMsg framework in the Beaglebone Green (BBG) development board.  The project repository is located here:
+
+\url{https://github.com/Greg-R/pruadc1}
 
 The inspiration for this project came from the superb book ``Exploring Beaglebone'' by Derek Molloy.  Professor Molloy's project utilized assembly code and the UIO driver.  The hardware used in this project is essentially a copy of the Molloy design.
 
-Recent developments in the Texas Instruments PRU support include the RemoteProc and Remote Messaging frameworks, as well as an extensively documented C compiler and additional supporting documentation.  This projects utilizes these frameworks and is entire dependent upon C code in both the PRU and GNU/Linux user space.  The detailed examples provided by TI in the ``PRU Support Package'' were invaluable in developing this project:
+Recent developments in the Texas Instruments PRU support include the RemoteProc and Remote Messaging frameworks, as well as an extensively documented C compiler and much additional supporting documentation.  This project utilizes these frameworks and is entirely dependent upon C code in both the PRU and GNU/Linux user space.  The detailed examples provided by TI in the ``PRU Support Package'' were invaluable in developing this project:
 
 \url{https://git.ti.com/pru-software-support-package}
 
-A listing of additional resources is found in the appendix.
+A listing of additional resources is found in the Resources chapter.
 
 An MCP3008 Analog-to-Digital Converter (ADC) IC is connected to the BBG GPIO pins which are in turn connected to the PRU using the ``Universal IO'' kernel driver which is deployed by default to the current distributions of Debian on the Beaglebones.
 
-The Digilent Analog Discovery 2 was used to analyze and debug the SPI bus between the ADC and the BBG/PRU.  This was an indispensable tool during the development process.
+The Digilent Analog Discovery 2 was used to analyze and debug the SPI bus between the ADC and the BBG/PRU.  The Analog Discovery 2 was an indispensable tool during the development process.

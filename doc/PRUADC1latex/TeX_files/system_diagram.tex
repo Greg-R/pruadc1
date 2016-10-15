@@ -17,5 +17,23 @@
 \chapter{System Diagram}
 
 
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{diagrams/system_ink}
+\centering\bfseries
+\caption{PRU-ADC System Diagram}
+\end{figure}
 
-\includegraphics{diagrams/system}
+The system diagram as shown includes all of the facilities used during development.
+
+The ``Linux Box'' is a desktop PC architecture machine running Ubuntu 14.04/16.04.  Communication to the BBG was done via ``Secure Shell'' (SSH).  The Linux Box also served as host for the Analog Discovery 2 and GUI via the HDMI display.  The Analog Discovery 2 also provided analog audio to the ADC input.
+
+The ``Beagle Bone Green'' (BBG) is the TI Sitara-based platform board manufactured by Seeed Studio.
+
+The ``ADC Cape'' is an Adafruit breadboard with the MCP3008 and headers soldered to it.  A few wires are required to complete the connections to the ADC to the header pins, DC bias and ground.
+
+The ``USB Codec'' plugs into the USB connector on the BBG.  Due to interference with the adjacent ethernet connector, a short USB extension cable is recommended.
+
+
+
+
