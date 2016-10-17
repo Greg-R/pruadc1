@@ -65,8 +65,8 @@ cp PRU\_Halt.out am335x-pru0-fw
 cp am335x-pru0-fw /lib/firmware
 10.  Now cd into the PRU\_RPMsg\_Echo\_Interrupt1 directory in the same lab\_5.
 Edit main.c as follows:
-//#define CHAN\_NAME					"rpmsg-client-sample"
-#define CHAN\_NAME					"rpmsg-pru"
+//\#define CHAN\_NAME					"rpmsg-client-sample"
+\#define CHAN\_NAME					"rpmsg-pru"
 11.  Now almost the same as #9, this time for pru1:
 cd gen
 cp PRU\_RPMsg\_Echo\_Interrupt1.out am335x-pru1-fw
