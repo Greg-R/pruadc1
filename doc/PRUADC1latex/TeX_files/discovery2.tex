@@ -5,16 +5,17 @@
 This table shows the Discovery 2 to PRU-ADC cape connections.
 
 
-	\begin{tabular}{llll}
-%		\caption{Analog Discovery 2 Wiring}\\
+	\begin{longtable}{cllc}
+		\caption{Analog Discovery 2 Wiring}\\
 		\toprule
-%		\head{Wire Number} & \head{Color} & \head{PRU} & \head{BBG Header} \\
-	1	& Green & Chip Select & P9 \\ 
-	2	& Purple & Clock & P9 \\ 
-	3	& Brown & MISO & P9 \\ 
-	4	& Pink &  MOSI & P9 \\ 
-	5	& Green & PRU1 Clock & P9
-	\end{tabular}
+Logic Wire Number & Color & SPI & BBG Header \\\midrule
+	1	& Green & Chip Select & P9.27 \\ 
+	2	& Purple & Clock & P9.30 \\ 
+	3	& Brown & MISO & P9.28 \\ 
+	4	& Pink &  MOSI & P9.29 \\ 
+	5	& Green & PRU1 Clock & MOVE! \\
+	\bottomrule
+	\end{longtable}
 	
 	The repository includes a set-up file for the Analog Discovery 2 in the ``discovery2'' directory.  The Logic Analyzer will appear as in the image below.
 	
