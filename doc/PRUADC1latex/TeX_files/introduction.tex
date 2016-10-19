@@ -31,3 +31,31 @@ A listing of additional resources is found in the Resources chapter.
 An MCP3008 Analog-to-Digital Converter (ADC) IC is connected to the BBG GPIO pins which are in turn connected to the PRU using the ``Universal IO'' kernel driver which is deployed by default to the current distributions of Debian on the Beaglebones.
 
 The Digilent Analog Discovery 2 was used to analyze and debug the SPI bus between the ADC and the BBG/PRU.  The Analog Discovery 2 was an indispensable tool during the development process.
+
+\section{Project Goals}
+
+This project does not solve a specific practical problem.  It is a laboratory experiment.
+
+The primary goal is to learn to program the PRUs, and to control and communicate with them from the operating system's ``user space''.  Here is a list of the project goals and sub-goals:
+
+\begin{itemize}
+	\item Write C code for the PRUs which implement a SPI bus.
+	\item Build a ``proto-cape'' with an ADC.
+	\item Use the ``Universal IO'' to configure the PRU interface to the GPIO pins.
+	\item Write a user-space C program which communicates with the PRUs via character devices.
+	\item Use the Analog Discovery 2 as a logic analyzer to debug the PRU SPI C code.
+	\item Stream the digitized audio data from the ADC to the ``Advanced Linux Sound Architecture'' in real time.  Play the audio to a speaker.
+	\item Document and publish the project to Github.
+\end{itemize}
+
+\section{Limitations}
+
+The BeagleBone's Sitara ``System On Chip'' is quite powerful, and this power is probably masking several inefficiencies in the project's design.  All of the testing and debugging was done with a bare-bones Debian distribution with no other significant processes running.
+
+The speaker audio does not have noticeable distortion or glitches when listening with the speaker.  The audio was not examined with a spectrum or distortion analyzer.  It may not be the best quality audio.
+
+The audio sample rate was limited to 8 kHz, which is the lowest rate accepted by ALSA.  A follow-up investigation will see if the sample rate can be increased.  It is not known what aspect of the system will begin to break down as sample rate is increased.
+
+The sample rate had to be ``tuned'' to prevent ``buffer underruns'' reported by the ALSA system.  An approach to make the real-time data stream robust is not known by the author and needs further investigation.
+
+
