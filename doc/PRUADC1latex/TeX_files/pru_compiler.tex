@@ -36,12 +36,13 @@ How much is currently stock on the official images?
 
 The following is a list of recommended steps to prepare a BBG for compiling PRU C files.
 
-1.  Flash IOT image to micro-sd.
-2.  Insert micro-sd into BBG slot, press boot and power buttons and release.
-3.  ssh root@192.168.1.7
-4.  uname -r to verify kernel -> 4.4.9-ti-r25  YES, it is the correct kernel.
-5.  apt-get update
-6.  cd / and then find . -name cgt-pru, and the path is /usr/share/ti/cgt-pru.  This is the location of the PRU library and includes.
+\begin{enumerate}
+\item Flash IOT image to micro-sd.
+\item  Insert micro-sd into BBG slot, press boot and power buttons and release.
+\item  ssh root@192.168.1.7
+\item  uname -r to verify kernel -> 4.4.9-ti-r25  YES, it is the correct kernel.
+\item  apt-get update
+\item  cd / and then find . -name cgt-pru, and the path is /usr/share/ti/cgt-pru.  This is the location of the PRU library and includes.
 However, the clpru compiler binary is not there:
 which clpru
 /usr/bin/clpru
@@ -51,28 +52,28 @@ mkdir bin
 cd bin
 ln -s /usr/bin/clpru clpru
 So now the make files will find the compiler executable in the correct location via the link.
-7.  cd /home/debian
+\item  cd /home/debian
 git clone git://git.ti.com/pru-software-support-package/pru-software-support-package.git
 This will clone a copy of the latest pru support package.
-8.  cd into lab\_5 in the package:
+\item  cd into lab\_5 in the package:
 cd lab\_5/solution/PRU\_Halt
 make
 This will fail, it is looking for environment variable \$PRU\_CGT
 export PRU\_CGT=/usr/share/ti/cgt-pru
 Now try make again.  It should succeed.
-9.  cd gen
+\item  cd gen
 cp PRU\_Halt.out am335x-pru0-fw
 cp am335x-pru0-fw /lib/firmware
-10.  Now cd into the PRU\_RPMsg\_Echo\_Interrupt1 directory in the same lab\_5.
+\item  Now cd into the PRU\_RPMsg\_Echo\_Interrupt1 directory in the same lab\_5.
 Edit main.c as follows:
 //\#define CHAN\_NAME					"rpmsg-client-sample"
 \#define CHAN\_NAME					"rpmsg-pru"
-11.  Now almost the same as \#9, this time for pru1:
+\item  Now almost the same as \#9, this time for pru1:
 cd gen
 cp PRU\_RPMsg\_Echo\_Interrupt1.out am335x-pru1-fw
 cp am335x-pru1-fw /lib/firmware
-12.  Reboot
-13.  cd /dev look for rpmsg\_pru31 device file.  It will be there!
-
+\item  Reboot
+\item  cd /dev look for rpmsg\_pru31 device file.  It will be there!
+\end{enumerate}
 
 

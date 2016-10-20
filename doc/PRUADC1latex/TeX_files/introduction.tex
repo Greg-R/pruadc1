@@ -28,9 +28,15 @@ Recent developments in the Texas Instruments PRU support include the RemoteProc 
 
 A listing of additional resources is found in the Resources chapter.
 
-An MCP3008 Analog-to-Digital Converter (ADC) IC is connected to the BBG GPIO pins which are in turn connected to the PRU using the ``Universal IO'' kernel driver which is deployed by default to the current distributions of Debian on the Beaglebones.
+An MCP3008 Analog-to-Digital Converter (ADC) IC is connected to the BBG GPIO pins which are in turn connected to the PRU using the ``Universal IO'' kernel driver which is deployed by default to the current distributions of Debian on the Beaglebones.  The PRUs communicate with a user-space C program via ``character devices'' created by the remote messaging kernel driver.  The data is pushed to a USB codec via the ``Advanced Linux Sound Architecture'', and finally, to an analog speaker.  The diagram below illustrates the flow of data through the system.
 
-The Digilent Analog Discovery 2 was used to analyze and debug the SPI bus between the ADC and the BBG/PRU.  The Analog Discovery 2 was an indispensable tool during the development process.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{diagrams/data_flow_intro}
+	\centering\bfseries
+	\caption{Flow of Data Through the System}
+\end{figure}
 
 \section{Project Goals}
 
@@ -57,5 +63,7 @@ The speaker audio does not have noticeable distortion or glitches when listening
 The audio sample rate was limited to 8 kHz, which is the lowest rate accepted by ALSA.  A follow-up investigation will see if the sample rate can be increased.  It is not known what aspect of the system will begin to break down as sample rate is increased.
 
 The sample rate had to be ``tuned'' to prevent ``buffer underruns'' reported by the ALSA system.  An approach to make the real-time data stream robust is not known by the author and needs further investigation.
+
+All of the development was done using the root user.  This is generally not a good practice, however, considering this as an embedded and experimental project it was not considered to be a serious issue.
 
 

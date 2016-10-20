@@ -14,11 +14,35 @@
 %    You should have received a copy of the GNU General Public License
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-\chapter{PRU Firmware}
+\chapter{PRU Firmware and User-space Program}
 
-Implementing the SPI Bus in C
+The ``PRU Firmware'' are two binary files which are placed in the directory /lib/firmware.
+These files must have specific names as follows:
 
-Implementing the Timing Clock in C
+\begin{itemize}
+	\item am335x-pru0-fw
+	\item am335x-pru1-fw
+\end{itemize}
 
-The User-Space Program
+The Makefile includes cp commands to copy the firmwares to the /lib/firmware directory.
+
+\section{Implementing the SPI Bus in C}
+
+The SPI bus C program roughly follows the PRU assembly code written by Derek Molloy.  The C code is compiled to a binary file am335x-pru0-fw. The firmware is loaded into PRU0 automatically by the remoteproc kernel driver.
+
+The program begins with code sequestered from the example code files in TI's PRU Software
+Support Package.  This codes establishes the character device driver via the ``Remote Proc Messenger''
+kernel driver.  There is a sort of ``priming'' process required whereby a user space program writes
+to the device driver.  The initializes the character driver, which allows it to write data from
+the PRU to the character driver and thus making the data available in user-space.
+
+After the initialization is complete, the program enters a for loop.  The SPI bus is implemented inside this for loop.  This is done by bit-banging the GPIOs which have been connected to PRU0 via the Universal IO.  Each pass through the for loop captures a single 10-bit sample from the ADC.
+
+The samples are accumulated in a buffer.  When the buffer is filled, the data is written to the character device via a function provided by the RPMsg kernel driver.
+
+Timings are critical, and this was accomplished by using the compiler intrinsic \_\_delay\_cycles.  Each delay is an absolute value of 5 nanoseconds.  This scheme appears to produce accurate enough timing to implement the SPI bus in real time.  
+
+\section{Implementing the Timing Clock in C}
+
+\section{The User-Space Program}
 
