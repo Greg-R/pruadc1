@@ -44,5 +44,10 @@ Timings are critical, and this was accomplished by using the compiler intrinsic 
 
 \section{Implementing the Timing Clock in C}
 
-\section{The User-Space Program}
+The ``Timing Clock'' sets the data sample rate.  The code is compiled into firmware am335x-pru1-fw, and this binary file is loaded into PRU1 by the Remoteproc kernel driver.
+
+The output of the Timing Clock is a simple pulse at a rate of 8 kHz.  This pulse is written to a PRU shared memory location.  This means that the SPI PRU0 can access this memory address and read its state.  A while loop in PRU0 polls this address and exits from the loop when the pulse goes high.  This polling action is done at the top of the for loop which captures a data sample from the ADC.  Thus the data capturing sequence in PRU0 is gated at the Timing Clock pulse rate.
+
+The Timing Clock does not begin emitting pulses as soon as the firmware is loaded and started.  There is a character device created in the initialization section of the C code.  The character device is created, and then a while loop begins monitoring for a specific incoming message, which in this case is the letter ``g'' (go);  When the go message is successfully received, the while loop is exited and the Timing Clock pulse code begins emitting pulses to PRU shared memory.
+
 

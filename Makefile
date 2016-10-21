@@ -24,6 +24,7 @@ all: $(SOURCES)
 	clpru $(CFLAGS) pru0adc.c $(LNK_CMDS1) $(LNK_CMDS2) $(LNK_CMDS3) ./AM335x_PRU.cmd -o ./result/am335x-pru0-fw --library=libc.a 
 	clpru $(CFLAGS) pru1adc.c $(LNK_CMDS1) $(LNK_CMDS2) $(LNK_CMDS3) ./AM335x_PRU.cmd -o ./result/am335x-pru1-fw --library=libc.a 
 	gcc -std=c99 ./user_space/fork_pcm_pru.c -o ./user_space/fork_pcm_pru
+	mkfifo ./user_space/soundfifo
 	cd result
 	cp ./result/am335x-pru0-fw /lib/firmware
 	cp ./result/am335x-pru1-fw /lib/firmware
