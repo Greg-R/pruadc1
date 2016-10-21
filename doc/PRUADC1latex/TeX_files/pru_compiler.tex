@@ -32,15 +32,13 @@ Note that the files appropriate for the BBG are in the folders with name am335x.
 
 The Makefiles in the labs and examples were designed to work with a particular set-up which can be easily implemented on the BBG.
 
-How much is currently stock on the official images?
-
 The following is a list of recommended steps to prepare a BBG for compiling PRU C files.
 
 \begin{enumerate}
 \item Flash IOT image to micro-sd.
 \item  Insert micro-sd into BBG slot, press boot and power buttons and release.
-\item  ssh root@192.168.1.7
-\item  uname -r to verify kernel -> 4.4.9-ti-r25  YES, it is the correct kernel.
+\item  ssh root@192.168.1.7 (or whatever the IP is set to)
+\item  uname -r to verify kernel -> 4.4.9-ti-r25  Make sure it is the desired kernel!
 \item  apt-get update
 \item  cd / and then find . -name cgt-pru, and the path is /usr/share/ti/cgt-pru.  This is the location of the PRU library and includes.
 However, the clpru compiler binary is not there:
