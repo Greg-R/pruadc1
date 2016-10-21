@@ -1,0 +1,13 @@
+\chapter{Miscellaneous Notes}
+
+Use of certain pins on the BBG header P8 can be problematic.  The pins in question are described in the system manual for the BeagleBone Black:
+
+\url{https://github.com/CircuitCo/BeagleBone-Black/blob/master/BBB_SRM.pdf?raw=true}
+
+Refer to the section "Boot Configuration Design".  Refer to Figure 38.  The pins in question are LCD\_DATA0 through LCD\_DATA15.
+
+Referencing the spreadsheet pinmux.ods, these correspond to header pins P8-31 through P8-46.
+
+Even fairly light loading on these pins will cause boot problems.  For example, if any of the logic analyzer inputs to the Analog Discovery 2 are connected to these pins, the boot process will be unreliable.
+
+The original design used P8-44 as a pruout which was used to monitor the Timing Clock from PRU1.  This was moved to header pin P8-30 to avoid the potential boot problem.
