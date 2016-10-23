@@ -14,19 +14,79 @@
 %    You should have received a copy of the GNU General Public License
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-\chapter{User Space Program: Fork and Named Pipe}
+\chapter{User-Space Program: Fork and Named Pipe}
 
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.8\textwidth]{diagrams/fork-crop}
+		\includegraphics[width=0.8\textwidth]{diagrams/user_space_fork}
 		\centering\bfseries
 		\caption{Data Flow in User Space Program}
 	\end{figure}
-	
-	
+		
 	The user-space program is responsible for reading the data from PRU0 and then writing that data to ALSA.
 	This requires the program to create two separate processes and some facility to allow data to flow from one process to the other.
 	
 	The system call to fork() combined with a ``named pipe'' implements these features in a user-space C program.
 	
-	Note that the user-space program does not create the named pipe.  A command in the Makefile creates the named pipe in the same directory as the user-space executable.  The named pipe appears in the file system and can be seen with the usual ls command.
+	Note that the user-space program does not create the named pipe.  A command in the Makefile creates the named pipe in the same directory as the user-space executable.  The named pipe (soundfifo) appears in the file system and can be seen with the usual ls command.
+	
+The program declares a the file descriptors and a type pid\_t variable for the forked process id.  The child uses the execvp system call to run aplay using the declared array of arguments.  The -D argument determines the sound device to use.  This is determined by using the command aplay -l in a shell on the BeagleBone:
+
+\begin{verbatim}
+debian@arm:~$ aplay -l
+**** List of PLAYBACK Hardware Devices ****
+card 1: Device [C-Media USB Audio Device], device 0: USB Audio [USB Audio]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+\end{verbatim} 
+
+In the above example, the card number is 1, and the device is 0.  This results
+in the aplay option:
+
+\begin{verbatim}
+-Dplughw:1,0
+\end{verbatim}
+	
+The fork command and the child process code is only a few lines:	
+	
+	\begin{verbatim}
+	  forkit = fork();
+	
+	  if (!forkit) { //  This is the child process.
+	    int result;
+	    char *arguments[] = {"aplay",       "--format=S16_LE", "-Dplughw:1,0",
+	                         "--rate=8000", "soundfifo",       NULL};
+	    result = execvp("aplay", arguments);
+	    printf("The return value of execvp(aplay) is %d.\n", result);
+	\end{verbatim}
+	
+	Note that in the above code aplay receives the audio data from the named pipe.  The named pipe is treated exactly as if it were a data file.
+		
+		The parent process uses three file descriptors:
+		
+		\begin{itemize}
+		\item ``soundfifo'' is for the named pipe.
+		\item ``pru\_data'' is for the character device to PRU0.  This will be the source of ADC audio samples.
+		\item ``pru\_clock'' is for the character device to PRU1.  This will be used to start the clock pulses which are connected to PRU0 via shared memory.
+		\end{itemize}
+	
+	The parent process is the master coordinator of the program.  It sequentially performs the following tasks:
+	
+	\begin{enumerate}
+	\item Open the soundfifo named pipe and rpmsg\_pru30 character device.
+	\item Write the character sequence ``prime'' to the character device rpmsg\_pru30 using the write function.  This initializes the Remoteproc messaging facility between PRU0 and user-space.
+	\item Open the rpmsg\-pru31 character device.
+	\item Write the character ``g'' to rpmsg\_pru31.  The Timing Clock in PRU1 will begin sending pulses to PRU0.
+	\end{enumerate}
+	
+	And finally, a for-loop begins the process of reading data from the rpmsg\_pru30 character device and writing this data to aplay (via soundfifo):
+	
+	\begin{verbatim}
+	    //  This is the main data transfer loop.
+	    //  Note that the number of transfers is finite.
+	    //  This can be changed to a while(1) to run forever.
+	    for (int i = 0; i < 20000000; i++) {
+	      readpru = read(pru_data, sinebuf, 490);
+	      writepipe = write(soundfifo, sinebuf, 490);
+	    }
+	\end{verbatim}
