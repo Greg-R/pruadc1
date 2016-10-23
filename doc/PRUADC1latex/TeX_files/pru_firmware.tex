@@ -26,28 +26,119 @@ These files must have specific names as follows:
 
 The Makefile includes cp commands to copy the firmwares to the /lib/firmware directory.
 
-\section{Implementing the SPI Bus in C}
+\section{Implementing the SPI Bus Firmware in C (pru0adc.c)}
 
-The SPI bus C program roughly follows the PRU assembly code written by Derek Molloy.  The C code is compiled to a binary file am335x-pru0-fw. The firmware is loaded into PRU0 automatically by the remoteproc kernel driver.
+The SPI bus C program roughly follows the PRU assembly code written by Derek Molloy.  The C code is compiled to a binary file am335x-pru0-fw. The firmware is loaded into PRU0 automatically by the Remoteproc kernel driver.
 
-The program begins with code sequestered from the example code files in TI's PRU Software
+The program begins with code sequestered from an example code file in TI's PRU Software
 Support Package.  This codes establishes the character device driver via the ``Remote Proc Messenger''
-kernel driver.  There is a sort of ``priming'' process required whereby a user space program writes
+kernel driver.  There are several lines of RPMsg ``set-up'' code which appear at the top of the file.
+
+Here is the path to the file from the root directory of the PRU Software Support Package:
+
+\begin{verbatim}
+pru-software-support-package/examples/am335x/PRU_RPMsg_Echo_Interrupt0
+\end{verbatim}
+
+There is a sort of ``priming'' process required whereby a user space program writes
 to the device driver.  The initializes the character driver, which allows it to write data from
-the PRU to the character driver and thus making the data available in user-space.
+the PRU to the character driver and thus making the data available in user-space.  This is the critical
+code which performs this function:
 
-After the initialization is complete, the program enters a for loop.  The SPI bus is implemented inside this for loop.  This is done by bit-banging the GPIOs which have been connected to PRU0 via the Universal IO.  Each pass through the for loop captures a single 10-bit sample from the ADC.
+\begin{verbatim}
+  //  This section of code blocks until a message is received from ARM.
+  while (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) !=
+  PRU_RPMSG_SUCCESS) {
+  }
+\end{verbatim}
 
-The samples are accumulated in a buffer.  When the buffer is filled, the data is written to the character device via a function provided by the RPMsg kernel driver.
+This empty while-loop continues until the user-space code writes a message to the character driver.  Upon receipt of a message, the data transport channel is ready to go, and the program breaks out of the while-loop.
 
-Timings are critical, and this was accomplished by using the compiler intrinsic \_\_delay\_cycles.  Each delay is an absolute value of 5 nanoseconds.  This scheme appears to produce accurate enough timing to implement the SPI bus in real time.  
+After the initialization is complete, the program enters a for-loop.  The SPI bus is implemented inside this for-loop.  This is done by ``bit-twiddling'' of register \_\_R30, which is 32 bits in length.  The individual bits in \_\_R30, in turn determine the ``high'' or ``low'' state at the GPIO, and thus the header pins.  The GPIO multiplexing is set via the ``Universal IO'', which is described in a later chapter.
 
-\section{Implementing the Timing Clock in C}
+The code utilizes timing delays and sequential setting and unsetting of bit values of \_\_R30.  This is done per the requirements shown in the MCP3008 ADC data sheet. Each pass through the for-loop configures, and then captures, a single 10-bit sample from the ADC.
+
+The top of the for-loop is blocked by a while ``polling'' loop.  The operand of the while loop is the value of a PRU shared memory location.  The PRU1 timing clock code writes to this location at precisely timed intervals.  When the while loop detects that three of the bits change from 0s to 1s, the while loop is broken and the SPI bus data acquisition sequence begins.  This action is what determines the 8 kHz data sampling rate.
+
+The samples are accumulated in a buffer (int16\_t payload[256]).  When the buffer is filled, the data is written to the character device via a function provided by the RPMsg kernel driver.  Here is the code:
+
+\begin{verbatim}
+    //  Send frames of 245 samples.
+    //  The entire buffer size of 512 can't be used for
+    //  data.  Some space is required by the "header".
+    //  The data is offset by 512 and then multiplied
+    //  to make appropriately scaled 16 bit signed integers.
+    payload[dataCounter] = 50 * ((int16_t)data - 512);
+    dataCounter = dataCounter + 1;
+    
+    if (dataCounter == 245) {
+    pru_rpmsg_send(&transport, dst, src, payload, 490);
+    dataCounter = 0;
+    }
+\end{verbatim}
+
+The dataCounter variable is incremented at the end of each pass through the for loop.  When the dataCounter hits 245, the pru\_rpmsg\_send command is used to write data to the character device. The dataCounter variable is reassigned to zero and the process repeats.
+
+The maximum buffer size which can be handled by RPMsg is 512 bytes (or 256 16 bit integers).  However, not all of the buffer can be used as there is a ``header'' included which takes a few bytes.  The number of samples transmitted, 245, was determined empirically.  Some study of the kernel drivers needs to be accomplished to better understand this limitation.
+
+Timings are critical, and this was accomplished by using the compiler intrinsic \_\_delay\_cycles.  Each delay is an absolute value of 5 nanoseconds.  This scheme has sufficient timing precision to implement the SPI bus in real time.  
+
+\section{Implementing the Timing Clock Firmware in C (pru1adc.c)}
 
 The ``Timing Clock'' sets the data sample rate.  The code is compiled into firmware am335x-pru1-fw, and this binary file is loaded into PRU1 by the Remoteproc kernel driver.
 
 The output of the Timing Clock is a simple pulse at a rate of 8 kHz.  This pulse is written to a PRU shared memory location.  This means that the SPI PRU0 can access this memory address and read its state.  A while loop in PRU0 polls this address and exits from the loop when the pulse goes high.  This polling action is done at the top of the for loop which captures a data sample from the ADC.  Thus the data capturing sequence in PRU0 is gated at the Timing Clock pulse rate.
 
-The Timing Clock does not begin emitting pulses as soon as the firmware is loaded and started.  There is a character device created in the initialization section of the C code.  The character device is created, and then a while loop begins monitoring for a specific incoming message, which in this case is the letter ``g'' (go);  When the go message is successfully received, the while loop is exited and the Timing Clock pulse code begins emitting pulses to PRU shared memory.
+The Timing Clock does not begin emitting pulses as soon as the firmware is loaded and started.  There is a character device created in the initialization section of the C code.  The character device is created, and then a while loop begins monitoring for a specific incoming message, which in this case is the letter ``g'' (go);  When the go message is successfully received, the while loop is exited and the Timing Clock pulse code begins emitting pulses to PRU shared memory.  Here is the code snippet which does this:
 
+\begin{verbatim}
+ //  The following code looks for a specific incoming message via RPMsg.
+ //  This code blocks until the message is successfully received.
+ //  If the correct message is received, the clock is allowed to begin.
+  while (1) {
+    /* Check bit 30 of register R31 to see if the ARM has kicked us */
+    if (__R31 & HOST_INT) {
+      /* Clear the event status */
+      CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;
+      /* Receive all available messages, multiple messages can be sent per kick
+       */
+      if (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) ==
+          PRU_RPMSG_SUCCESS) {
+        if (payload[0] == 'g')
+          break;
+      }
+    }
+  }
+\end{verbatim}
+
+After the ``go'' code is successfully received, the pulse timing code begins.
+
+The pulse timing code consists of a single infinite while-loop.  A pointer variable is declared which is the address of the PRU shared memory location.  This pointer is ``dereferenced'' and the value 7 (binary LSB value 111) to pulse ``high'', a delay which defines the pulse width, and then reassigned to zero.
+
+The manipulation of \_\_R30 is done so that the pulse is also present at the header pin P9.30.  This allows monitoring via the Analog Discovery 2 logic analyzer.
+
+\begin{verbatim}
+  //  The sample clock is located at shared memory address 0x00010000.
+  //  Need a pointer for this address.  This is found in the linker file.
+  //  The address 0x0001_000 is PRU_SHAREDMEM.
+  uint32_t *clockPointer = (uint32_t *)0x00010000;
+  *clockPointer = 0; //  Clear this memory location.
+
+  while (1) {
+    __R30 = __R30 | (1 << 11);  // P9.30
+    *clockPointer = 7;
+    __delay_cycles(1000); 
+    *clockPointer = 0;
+    __R30 = __R30 & (0 << 11);
+    //  The following delay will set the clock rate.
+    //  This delay was originally 24000 cycles; it was reduced due to ALSA underruns.
+    __delay_cycles(23980); 
+  }
+\end{verbatim}
+
+The final line of the delay loop using the compiler intrinsic \_\_delay\_cycles(23980) sets the pulse rate.  Each delay cycle is 5 nanoseconds, and the pulse rate can be computed as follows:
+
+\[ \frac{\text{1}}{1000*5ns + 24000*5ns}  = \text{8000 Hz} \]
+
+Note that a few cycles are also required to implement the while-loop and to change the state of \_\_R30.  With the total value of 25000 delays, ALSA emitted ``buffer underrun'' warnings.  The delay value was empirically reduced until the underrun notices were no longer emitted.
 

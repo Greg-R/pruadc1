@@ -65,7 +65,7 @@ int main(void) {
 
   //  1.  Enable OCP Master Port
   CT_CFG.SYSCFG_bit.STANDBY_INIT = 0;
-  //  Clear the status of PRU-ICSS system event that the armwill use to 'kick'
+  //  Clear the status of PRU-ICSS system event that the ARM will use to 'kick'
   //  us.
   CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;
 
@@ -154,7 +154,7 @@ int main(void) {
     }                       //  End of 24 cycle loop
     __R30 = __R30 | 1 << 5; //  Chip select to HIGH
 
-    //  Send frames of 245 samples.
+    //  Send frames of 245 samples (16 bit integers).
     //  The entire buffer size of 512 can't be used for
     //  data.  Some space is required by the "header".
     //  The data is offset by 512 and then multiplied
