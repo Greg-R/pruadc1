@@ -56,9 +56,9 @@ This empty while-loop continues until the user-space code writes a message to th
 
 After the initialization is complete, the program enters a for-loop.  The SPI bus is implemented inside this for-loop.  This is done by ``bit-twiddling'' of register \_\_R30, which is 32 bits in length.  The individual bits in \_\_R30, in turn determine the ``high'' or ``low'' state at the GPIO, and thus the header pins.  The GPIO multiplexing is set via the ``Universal IO'', which is described in a later chapter.
 
-The code utilizes timing delays and sequential setting and unsetting of bit values of \_\_R30.  This is done per the requirements shown in the MCP3008 ADC data sheet. Each pass through the for-loop configures, and then captures, a single 10-bit sample from the ADC.
+The code utilizes timing delays and sequential setting and unsetting of bit values of \_\_R30.  This is done per the requirements shown in the MCP3008 ADC data sheet. Each pass through the for-loop configures the ADC, and then captures a single 10-bit sample from the ADC.
 
-The top of the for-loop is blocked by a while ``polling'' loop.  The operand of the while loop is the value of a PRU shared memory location.  The PRU1 timing clock code writes to this location at precisely timed intervals.  When the while loop detects that three of the bits change from 0s to 1s, the while loop is broken and the SPI bus data acquisition sequence begins.  This action is what determines the 8 kHz data sampling rate.
+The top of the for-loop is blocked by a while ``polling'' loop.  The operand of the while-loop is the value of a PRU shared memory location.  The PRU1 timing clock code writes to this location at precisely timed intervals.  When the while loop detects that three of the bits change from 0s to 1s, the while loop is broken and the SPI bus data acquisition sequence begins.  This action is what determines the 8 kHz data sampling rate.
 
 The samples are accumulated in a buffer (int16\_t payload[256]).  When the buffer is filled, the data is written to the character device via a function provided by the RPMsg kernel driver.  Here is the code:
 
@@ -87,7 +87,7 @@ Timings are critical, and this was accomplished by using the compiler intrinsic 
 
 The ``Timing Clock'' sets the data sample rate.  The code is compiled into firmware am335x-pru1-fw, and this binary file is loaded into PRU1 by the Remoteproc kernel driver.
 
-The output of the Timing Clock is a simple pulse at a rate of 8 kHz.  This pulse is written to a PRU shared memory location.  This means that the SPI PRU0 can access this memory address and read its state.  A while loop in PRU0 polls this address and exits from the loop when the pulse goes high.  This polling action is done at the top of the for loop which captures a data sample from the ADC.  Thus the data capturing sequence in PRU0 is gated at the Timing Clock pulse rate.
+The output of the Timing Clock is a single pulse at a rate of 8 kHz.  This pulse is written to a PRU shared memory location.  This means that the SPI program in PRU0 can access this memory address and read its state.  A while loop in PRU0 polls this address and exits from the loop when the pulse goes high.  This polling action is done at the top of the for loop which captures a data sample from the ADC.  Thus the data capturing sequence in PRU0 is gated at the Timing Clock pulse rate.
 
 The Timing Clock does not begin emitting pulses as soon as the firmware is loaded and started.  There is a character device created in the initialization section of the C code.  The character device is created, and then a while loop begins monitoring for a specific incoming message, which in this case is the letter ``g'' (go);  When the go message is successfully received, the while loop is exited and the Timing Clock pulse code begins emitting pulses to PRU shared memory.  Here is the code snippet which does this:
 
@@ -113,7 +113,7 @@ The Timing Clock does not begin emitting pulses as soon as the firmware is loade
 
 After the ``go'' code is successfully received, the pulse timing code begins.
 
-The pulse timing code consists of a single infinite while-loop.  A pointer variable is declared which is the address of the PRU shared memory location.  This pointer is ``dereferenced'' and the value 7 (binary LSB value 111) to pulse ``high'', a delay which defines the pulse width, and then reassigned to zero.
+The pulse timing code is contained in an infinite while-loop.  A pointer variable is declared which is the address of the PRU shared memory location.  This pointer is ``dereferenced'' and the value 7 (binary LSB value 111) to pulse ``high'', a delay command fires which defines the pulse width, and then the deferenced pointer is reassigned to zero.
 
 The manipulation of \_\_R30 is done so that the pulse is also present at the header pin P9.30.  This allows monitoring via the Analog Discovery 2 logic analyzer.
 

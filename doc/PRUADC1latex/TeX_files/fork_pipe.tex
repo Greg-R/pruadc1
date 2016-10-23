@@ -18,7 +18,7 @@
 
 	\begin{figure}[h]
 		\centering
-		\includegraphics[width=0.8\textwidth]{diagrams/user_space_fork}
+		\includegraphics[width=0.6\textwidth]{diagrams/user_space_fork}
 		\centering\bfseries
 		\caption{Data Flow in User Space Program}
 	\end{figure}
@@ -30,7 +30,9 @@
 	
 	Note that the user-space program does not create the named pipe.  A command in the Makefile creates the named pipe in the same directory as the user-space executable.  The named pipe (soundfifo) appears in the file system and can be seen with the usual ls command.
 	
-The program declares a the file descriptors and a type pid\_t variable for the forked process id.  The child uses the execvp system call to run aplay using the declared array of arguments.  The -D argument determines the sound device to use.  This is determined by using the command aplay -l in a shell on the BeagleBone:
+	\section{Child Process and aplay}
+	
+The program declares the file descriptors and a type pid\_t variable for the forked process id.  The child uses the execvp system call to run aplay using the declared array of arguments.  The -D argument determines the sound device to use.  This is determined by using the command aplay -l in a shell on the BeagleBone:
 
 \begin{verbatim}
 debian@arm:~$ aplay -l
@@ -61,6 +63,8 @@ The fork command and the child process code is only a few lines:
 	\end{verbatim}
 	
 	Note that in the above code aplay receives the audio data from the named pipe.  The named pipe is treated exactly as if it were a data file.
+	
+	\section{Parent Process and Data Read/Write}
 		
 		The parent process uses three file descriptors:
 		

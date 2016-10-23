@@ -16,11 +16,13 @@
 
 \chapter{Introduction}
 
-This is the documentation for a small embedded GNU/Linux project utilizing the RemoteProc and RPMsg framework in the Beaglebone Green (BBG) development board.  The project repository is located here:
+This is the documentation for an embedded GNU/Linux project utilizing the RemoteProc and RPMsg framework in the Beaglebone Green (BBG) development board.  The project repository is located here:
 
 \url{https://github.com/Greg-R/pruadc1}
 
-The inspiration for this project came from the superb book ``Exploring Beaglebone'' by Derek Molloy.  Professor Molloy's project utilized assembly code and the UIO driver.  The hardware used in this project is essentially a copy of the Molloy design.
+The inspiration for this project came from the superb book ``Exploring Beaglebone'' by Derek Molloy.  Professor Molloy's project utilized assembly code and the UIO driver.  The hardware used in this project is essentially a copy of the Molloy design published on the web here:
+
+\url{http://exploringbeaglebone.com/chapter13/}
 
 Recent developments in the Texas Instruments PRU support include the RemoteProc and Remote Messaging frameworks, as well as an extensively documented C compiler and much additional supporting documentation.  This project utilizes these frameworks and is entirely dependent upon C code in both the PRU and GNU/Linux user space.  The detailed examples provided by TI in the ``PRU Support Package'' were invaluable in developing this project:
 
@@ -52,6 +54,7 @@ The primary goal is to learn to program the PRUs, and to control and communicate
 	\item Use the Analog Discovery 2 as a logic analyzer to debug the PRU SPI C code.
 	\item Stream the digitized audio data from the ADC to the ``Advanced Linux Sound Architecture'' in real time.  Play the audio to a speaker.
 	\item Document and publish the project to Github.
+	\item Create a brief video demonstration of the project and publish.
 \end{itemize}
 
 \section{Limitations}
@@ -60,7 +63,7 @@ The BeagleBone's Sitara ``System On Chip'' is quite powerful, and this power is 
 
 The speaker audio does not have noticeable distortion or glitches when listening with the speaker.  The audio was not examined with a spectrum or distortion analyzer.  It may not be the best quality audio.
 
-The audio sample rate was limited to 8 kHz, which is the lowest rate accepted by ALSA.  A follow-up investigation will see if the sample rate can be increased.  It is not known what aspect of the system will begin to break down as sample rate is increased.
+The audio sample rate was limited to 8 kHz, which is the lowest rate accepted by ALSA.  A follow-up investigation will see if the sample rate can be increased.  It is not known what aspect of the system will begin to break down as the sample rate is increased.
 
 The sample rate had to be ``tuned'' to prevent ``buffer underruns'' reported by the ALSA system.  An approach to make the real-time data stream robust is not known by the author and needs further investigation.
 

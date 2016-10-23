@@ -14,16 +14,30 @@
 %    You should have received a copy of the GNU General Public License
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-\chapter{RemoteProc Framework Messaging}
+\chapter{RemoteProc and RPMsg Framework}
 
 \begin{figure}[h]
 	\centering
-    \includegraphics{diagrams/char_devices_2}
+    \includegraphics[width=0.7\textwidth]{diagrams/char_devices_2}
 	\centering\bfseries
 	\caption{PRU<->ARM Character Devices}
 \end{figure}
 
+TI has provided example code and kernel drivers for the ``RemoteProc and RemoteProc Messaging Framework''.  A detailed explanation of this framework is available here:
+
+\url{http://processors.wiki.ti.com/index.php/PRU-ICSS_Remoteproc_and_RPMsg}
+
+This framework provides a means of controlling and communicating with the PRUs from user-space, and this project is totally dependent on these functions.
+
+The Remoteproc framework automatically does the job of loading the PRU firmwares from user-space into the PRUs.  Via a sysfs entry, the PRUs can be started and halted from the command line.  These functions are described in the chapter "Shell Scripts".
+
+The examples provided in the PRU Software Support Package show how to use provided functions to send and receive data from PRU to ARM or ARM to PRU.  This is done via character devices which appear in the usual /dev directory.  The standard POSIX functions read/write/open/close work with these character devices.  This allows for typical systems programming technique to become applicable when working with the PRUs.
+
+This project requires the use of one character device for each PRU.  The character driver for PRU0 is the ``data stream'' for PCM data read from the ADC via the SPI bus.  The character device for PRU1 is used to activate the PRU1 Timing Clock as the last action after all systems are initialized.  A simple signal is transmitted from user-space to PRU1, and this begins the flow of data through the system.
+
+This project did not require modifications to the loadable kernel modules in the Remoteproc framework.  The modules provided with the support package were used as-is.
 
 
-Control of the PRU Clock Using Character Driver
+
+
 
