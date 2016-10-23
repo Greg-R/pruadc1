@@ -1,0 +1,46 @@
+\chapter{Running the Project}
+
+In order to run the project and hear audio from the speaker, the following steps must have been completed:
+
+\begin{itemize}
+	\item ``make'' run in pruadc1 repository directory.  Some warnings or errors may be ignored.  Check that the C code files pruadc0.c and pruadc1.c compile and firmware files are copied to /lib/firmware.
+	\item USB codec is plugged into the BBG USB jack.  A speaker is plugged into the USB codec.
+	\item Run command 
+	
+	\begin{verbatim}
+	prumodout
+	\end{verbatim} 
+	
+	at the command line.  Note that this command may cause some errors or warnings to be emitted.
+	This is normal and depends on the current state of the remoteproc kernel driver.
+	\item Run command 
+	
+	\begin{verbatim}
+	prumodin
+	\end{verbatim} 
+	
+	at the command line.
+	\item Connect an analog audio source to the MCP3008 ADC input.  This is pin 1 ``CH0''.  Also connect a ground from the audio source to the analog ground pin 12 ``AGND''.  The audio source must have a positive DC offset of about one-half of 3.3 Volts.  The waveform generator of the Analog Discovery 2 is a perfect source to drive the ADC input, as it has DC and AC magnitude settings in the GUI.  A low audio frequency is recommended.  A nice pleasant tone is 440 Hz (the musical note A).
+	\item  Finally, the user-space program is ready to be started!
+	
+	\begin{verbatim}
+	cd user_space
+	./fork_pcm_pru
+	\end{verbatim}
+\end{itemize}
+
+If all goes well, a tone should be emitted from the speaker.  The program should indicate that a command to ALSA aplay is running in one of the processes:
+
+\begin{verbatim}
+Playing raw data 'soundfifo' : Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+\end{verbatim}
+
+Stopping the program will require two Ctrl-C commands in series.
+
+The PRU firmwares will continue to run.  To stop them, issue the command
+
+\begin{verbatim}
+prumodout
+\end{verbatim}
+
+at the command line, and the PRUs will be halted.
