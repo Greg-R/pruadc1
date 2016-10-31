@@ -43,10 +43,13 @@ The TI PRU C compiler documentation is located here:
 
 http://www.ti.com/lit/ug/spruhv7a/spruhv7a.pdf
 
-A crude video describing the project is at youtube:
+A quick video describing the project is at youtube:
 
 https://youtu.be/i-ZcPAvkQVU
 
-Hopefully I can improve the quality of this video in the near future!
+Here is a second video (covering the same, a little more formal):
 
+https://youtu.be/FzmRYEzsuLA
+
+Regards,
 Greg
