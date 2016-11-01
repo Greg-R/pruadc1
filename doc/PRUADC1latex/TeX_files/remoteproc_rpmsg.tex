@@ -37,6 +37,50 @@ This project requires the use of one character device for each PRU.  The charact
 
 This project did not require modifications to the loadable kernel modules in the Remoteproc framework.  The modules provided with the support package were used as-is.
 
+\section{Files Associated with RemoteProc in the Compilation Process}
+
+There are some interesting files in the root directory of the github repository for this project:
+
+\begin{itemize}
+\item resource\_table\_0.h
+\item resource\_table\_1.h
+\item AM335x\_PRU.cmd
+\end{itemize}
+
+These files were copied verbatim from the PRU Support Package.
+
+Jason Kridner of Beagleboard.org has provided an explanation of all of the files required to compile firmwares for the PRUs:
+
+\begin{quotation}
+There are four files needed in order to build a C project for the PRU using TI's C compiler. Each of the examples and labs in the pru-software-support-package include these files:
+\begin{enumerate}
+
+\item  yourProgramFile.c
+
+This is your C program that you are writing for the PRU.
+
+\item   AM335x\_PRU.cmd
+
+This is a command linker file. This is the way that we describe the physical memory map, the constant table entries, and the placement of our code and data sections (into the physical memory described at the top of the file) to the PRU linker. There are some neat things that can be done as far as placing code and data in exact memory locations using this file, but for the majority of projects, this file can remain unchanged.
+
+\item   resource\_table\_*.h
+
+This file will create a header in the elf binary (generated .out file) that is needed by the RemoteProc Linux driver while loading the code into the PRUs. For the examples in the pru-software-support-package, there are two types of resources that the PRU can request using the resource\_table\_*.h file:
+
+interrupts - letting RemoteProc configure the PRU INTC interrupts saves code space on the PRUs.
+
+vrings - requesting vrings in the resource\_table file is necessary if rpmsg communication is desired (since the ARM/Linux needs to create the vrings in DDR and then notify the PRU where the vrings were placed)
+even if no resources are needed, the RemoteProc Linux driver expects the header to exist. Because of this, many examples in the package contain an empty resource\_table header file (resource\_table\_empty.h)
+
+\item   Makefile
+
+Makefile to build your PRU C program either on the target, on your Linux machine, or even on a Windows machine. The comment at the top of the Makefile tries to explain the environment variable needed for a successful build and how to set it on each of the three supported build development environments.
+
+\end{enumerate}
+\end{quotation}
+
+
+
 
 
 
