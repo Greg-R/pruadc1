@@ -33,43 +33,83 @@ Note that the files appropriate for the BBG are in the folders with name am335x.
 The Makefiles in the labs and examples were designed to work with a particular set-up which can be easily implemented on the BBG.
 
 The following is a list of recommended steps to prepare a BBG for compiling PRU C files.
+This process assumes a relatively new SD card image which is loaded with the PRU compiler (clpru) and libraries.  Another assumption is that the Remoteproc and RPMsg kernel drivers are included and that they are loaded during the start-up process.  This is true for some, but not all, recently published images as of November, 2016. 
 
 \begin{enumerate}
-\item Flash IOT image to micro-sd.
-\item  Insert micro-sd into BBG slot, press boot and power buttons and release.
-\item  ssh root@192.168.1.7 (or whatever the IP is set to)
+\item  Flash Beaglebone image to micro-sd.
+\item  Insert micro-sd into BBG slot, press boot and power buttons and release.  Non-flasher images may not require the boot button to be pressed, and the board will boot and run from the SD card.
+\item  ssh root@192.168.1.7 (or whatever the IP is set to).  If you are using a router with a GUI control application, it may have a display which indicates the board is connected and which IP address has been assigned to it.
 \item  uname -r to verify kernel -> 4.4.9-ti-r25  Make sure it is the desired kernel!
+The rest of the set-up will be completed using root access.
+Execute
+\begin{verbatim}
+sudo su
+\end{verbatim}
 \item  apt-get update
-\item  cd / and then find . -name cgt-pru, and the path is /usr/share/ti/cgt-pru.  This is the location of the PRU library and includes.
-However, the clpru compiler binary is not there:
+\item  Execute these commands:
+  \begin{verbatim}
+cd /
+\end{verbatim} and then 
+\begin{verbatim}
+find . -name cgt-pru
+\end{verbatim}
+
+The path may be something like 
+\begin{verbatim}
+/usr/share/ti/cgt-pru
+\end{verbatim}  
+
+This is the location of the PRU library and includes.
+However, the clpru compiler binary is not there.  Run this command:
+\begin{verbatim}
 which clpru
+\end{verbatim}
+and the result will be something like:
+\begin{verbatim}
 /usr/bin/clpru
-So the compiler binary is in a different location.  This is a problem for the labs make files.
+\end{verbatim}
+So the compiler binary is in a different location.  This is a problem for the lab's make files.  Execute the following commands (as root):
+\begin{verbatim}
 cd /usr/share/ti/cgt-pru
 mkdir bin
 cd bin
 ln -s /usr/bin/clpru clpru
+\end{verbatim}
 So now the make files will find the compiler executable in the correct location via the link.
 \item  cd /home/debian
 git clone git://git.ti.com/pru-software-support-package/pru-software-support-package.git
 This will clone a copy of the latest pru support package.
 \item  cd into lab\_5 in the package:
-cd lab\_5/solution/PRU\_Halt
+\begin{verbatim}
+cd pru-software-support-package/labs/lab_5/solution/PRU_Halt
 make
+\end{verbatim}
 This will fail, it is looking for environment variable \$PRU\_CGT
+
+\begin{verbatim}
 export PRU\_CGT=/usr/share/ti/cgt-pru
+\end{verbatim}
+
 Now try make again.  It should succeed.
-\item  cd gen
+\item  Execute the following:
+\begin{verbatim}
+cd gen
 cp PRU\_Halt.out am335x-pru0-fw
 cp am335x-pru0-fw /lib/firmware
+\end{verbatim}
 \item  Now cd into the PRU\_RPMsg\_Echo\_Interrupt1 directory in the same lab\_5.
 Edit main.c as follows:
-//\#define CHAN\_NAME					"rpmsg-client-sample"
-\#define CHAN\_NAME					"rpmsg-pru"
-\item  Now almost the same as \#9, this time for pru1:
+\begin{verbatim}
+//#define CHAN_NAME					"rpmsg-client-sample"
+#define CHAN_NAME					"rpmsg-pru"
+\end{verbatim}
+\item  Now execute almost the same as \#9, this time for pru1:
+\begin{verbatim}
 cd gen
-cp PRU\_RPMsg\_Echo\_Interrupt1.out am335x-pru1-fw
+cp PRU_RPMsg_Echo_Interrupt1.out am335x-pru1-fw
 cp am335x-pru1-fw /lib/firmware
+\end{verbatim}
+The compilation of both PRU firmwares are complete and they are copied to /lib/firmware.
 \item  Reboot
 \item  cd /dev look for rpmsg\_pru31 device file.  It will be there!
 \end{enumerate}
