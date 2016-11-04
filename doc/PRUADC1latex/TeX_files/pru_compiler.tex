@@ -84,17 +84,17 @@ This will clone a copy of the latest pru support package.
 cd pru-software-support-package/labs/lab_5/solution/PRU_Halt
 make
 \end{verbatim}
-This will fail, it is looking for environment variable \$PRU\_CGT
+This will fail, it is looking for environment variable \$PRU\_CGT.  Execute:
 
 \begin{verbatim}
-export PRU\_CGT=/usr/share/ti/cgt-pru
+export PRU_CGT=/usr/share/ti/cgt-pru
 \end{verbatim}
 
 Now try make again.  It should succeed.
 \item  Execute the following:
 \begin{verbatim}
 cd gen
-cp PRU\_Halt.out am335x-pru0-fw
+cp PRU_Halt.out am335x-pru0-fw
 cp am335x-pru0-fw /lib/firmware
 \end{verbatim}
 \item  Now cd into the PRU\_RPMsg\_Echo\_Interrupt1 directory in the same lab\_5.
