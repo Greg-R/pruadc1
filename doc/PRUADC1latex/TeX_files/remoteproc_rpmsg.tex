@@ -37,6 +37,32 @@ This project requires the use of one character device for each PRU.  The charact
 
 This project did not require modifications to the loadable kernel modules in the Remoteproc framework.  The modules provided with the support package were used as-is.
 
+\section{The Remoteproc and RPMsg Kernel Modules}
+
+``Loadable Kernel Modules'' (LKMs) must be active for this project to function.
+At the shell command line, execute this command:
+
+\begin{verbatim}
+lsmod
+\end{verbatim}
+
+This will list the LKMs currently loaded.  The modules associated with Remoteproc are:
+
+\begin{itemize}
+\item pruss
+\item pru\_rproc
+\end{itemize}
+
+There is another module associated with RPMsg, and this will appear in the list only after the firmwares are loaded into the PRUs:
+
+\begin{verbatim}
+
+\end{verbatim}
+
+Some of the Beaglebone distributions will not have the above modules loaded by default at boot.  However, they can be loaded (or unloaded) anytime after boot with the following commands:
+
+A second set of shell scripts is included in the repository which includes these commands in the ``prumodout'' and ``prumodin'' scripts.
+
 \section{Files Associated with RemoteProc in the Compilation Process}
 
 There are some interesting files in the root directory of the github repository for this project:

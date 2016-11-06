@@ -36,16 +36,26 @@ The following is a list of recommended steps to prepare a BBG for compiling PRU 
 This process assumes a relatively new SD card image which is loaded with the PRU compiler (clpru) and libraries.  Another assumption is that the Remoteproc and RPMsg kernel drivers are included and that they are loaded during the start-up process.  This is true for some, but not all, recently published images as of November, 2016. 
 
 \begin{enumerate}
-\item  Flash Beaglebone image to micro-sd.
+\item  Write Beaglebone image to micro-sd.
 \item  Insert micro-sd into BBG slot, press boot and power buttons and release.  Non-flasher images may not require the boot button to be pressed, and the board will boot and run from the SD card.
-\item  ssh root@192.168.1.7 (or whatever the IP is set to).  If you are using a router with a GUI control application, it may have a display which indicates the board is connected and which IP address has been assigned to it.
-\item  uname -r to verify kernel -> 4.4.9-ti-r25  Make sure it is the desired kernel!
+\item  ssh debian@192.168.1.7 (or whatever the IP is set to).  If you are using a router with a GUI control application, it may have a display which indicates the board is connected and which IP address has been assigned to it.
+\item  Execute
+\begin{verbatim}
+sudo apt-get update
+\end{verbatim}
+\item  Execute
+\begin{verbatim}
+uname -r
+\end{verbatim} 
+to verify kernel version.  Please note that the Remoteproc framework is still evolving and it is required to verify that the kernel used will work with the PRU support package examples.  The latest published images will probably be correct, but it may be required to verify this.
+
 The rest of the set-up will be completed using root access.
 Execute
 \begin{verbatim}
 sudo su
 \end{verbatim}
-\item  apt-get update
+and authenticate as required to switch to root user.
+
 \item  Execute these commands:
   \begin{verbatim}
 cd /
@@ -60,7 +70,7 @@ The path may be something like
 \end{verbatim}  
 
 This is the location of the PRU library and includes.
-However, the clpru compiler binary is not there.  Run this command:
+However, the clpru compiler binary is not located in this directory.  Run this command:
 \begin{verbatim}
 which clpru
 \end{verbatim}
@@ -68,50 +78,75 @@ and the result will be something like:
 \begin{verbatim}
 /usr/bin/clpru
 \end{verbatim}
-So the compiler binary is in a different location.  This is a problem for the lab's make files.  Execute the following commands (as root):
+This is the path to the compiler binary.
+
+The PRU C compiler needs to find the include and lib directories.  Execute the following:
+
+\begin{verbatim}
+cd /
+find . -name cgt-pru
+\end{verbatim}
+
+This should find the following or similar path:
+
+\begin{verbatim}
+/usr/share/ti/cgt-pru
+\end{verbatim}
+
+The above is the path to the C Compiler includes and lib directories.  The Makefiles in the PRU Support Package look for the compiler binary at this path, so the following changes must be made.
+
+Execute the following commands (as root):
 \begin{verbatim}
 cd /usr/share/ti/cgt-pru
 mkdir bin
 cd bin
 ln -s /usr/bin/clpru clpru
 \end{verbatim}
-So now the make files will find the compiler executable in the correct location via the link.
-\item  cd /home/debian
+So now the Makefiles will find the compiler executable in the correct location via the link.
+\item  Now install the PRU Support Package:
+
+\begin{verbatim}
+cd /home/debian
 git clone git://git.ti.com/pru-software-support-package/pru-software-support-package.git
+\end{verbatim}
+
 This will clone a copy of the latest pru support package.
-\item  cd into lab\_5 in the package:
+\item  cd into lab\_5 in the package and execute the make command:
 \begin{verbatim}
 cd pru-software-support-package/labs/lab_5/solution/PRU_Halt
 make
 \end{verbatim}
-This will fail, it is looking for environment variable \$PRU\_CGT.  Execute:
+This will fail, as the Makefile is looking for environment variable \$PRU\_CGT.  Execute:
 
 \begin{verbatim}
 export PRU_CGT=/usr/share/ti/cgt-pru
 \end{verbatim}
 
-Now try make again.  It should succeed.
+Now execute the make command again.  It should succeed.  A new directory ``gen'' should appear.
 \item  Execute the following:
 \begin{verbatim}
 cd gen
 cp PRU_Halt.out am335x-pru0-fw
 cp am335x-pru0-fw /lib/firmware
 \end{verbatim}
+This renames the executable binary and copies it to the directory at which Remoteproc expects to find PRU firmwares.
 \item  Now cd into the PRU\_RPMsg\_Echo\_Interrupt1 directory in the same lab\_5.
 Edit main.c as follows:
 \begin{verbatim}
 //#define CHAN_NAME					"rpmsg-client-sample"
 #define CHAN_NAME					"rpmsg-pru"
 \end{verbatim}
-\item  Now execute almost the same as \#9, this time for pru1:
+The ``CHAN\_NAME'' define is now set to ``rpmsg-pru''.
+\item  Now execute almost the same as \#9, except this time the firmware for PRU1 is compiled a copied:
 \begin{verbatim}
+make
 cd gen
 cp PRU_RPMsg_Echo_Interrupt1.out am335x-pru1-fw
 cp am335x-pru1-fw /lib/firmware
 \end{verbatim}
 The compilation of both PRU firmwares are complete and they are copied to /lib/firmware.
 \item  Reboot
-\item  cd /dev look for rpmsg\_pru31 device file.  It will be there!
+%\item  cd /dev look for rpmsg\_pru31 device file.  It will be there!
 \end{enumerate}
 
 
