@@ -14,7 +14,7 @@
 %    You should have received a copy of the GNU General Public License
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-\chapter{Setting up the PRU Compiler on the Beaglebone Green}
+\chapter{Setting up the Remoteproc PRU and Compiler on the Beaglebone Green}
 
 The following describes the simplest possible set-up.  Everything was done via the command line, and the vim editor was used extensively to develop the C code and shell scripts.
 
@@ -33,10 +33,16 @@ Note that the files appropriate for the BBG are in the folders with name am335x.
 The Makefiles in the labs and examples were designed to work with a particular set-up which can be easily implemented on the BBG.
 
 The following is a list of recommended steps to prepare a BBG for compiling PRU C files.
-This process assumes a relatively new SD card image which is loaded with the PRU compiler (clpru) and libraries.  Another assumption is that the Remoteproc and RPMsg kernel drivers are included and that they are loaded during the start-up process.  This is true for some, but not all, recently published images as of November, 2016. 
+This process assumes a relatively new SD card image which is loaded with the PRU compiler (clpru) and libraries.  Another assumption is that the Remoteproc and RPMsg kernel drivers are included and that they are loaded during the start-up process.  This is true for some, but not all, recently published images as of November, 2016.
+
+\section{Activate Remoteproc PRU and Kernel Modules}
+
+The newest Beaglebone Debian distributions do not have the Remoteproc framework activated by default!
+
+The following process activates the framework which includes several loadable kernel modules.  This is a prerequisite for the remainder of the setup process.
 
 \begin{enumerate}
-\item  Write Beaglebone image to micro-sd.
+\item  Write Beaglebone image to micro-sd and expand partition as required.
 \item  Insert micro-sd into BBG slot, press boot and power buttons and release.  Non-flasher images may not require the boot button to be pressed, and the board will boot and run from the SD card.
 \item  ssh debian@192.168.1.7 (or whatever the IP is set to).  If you are using a router with a GUI control application, it may have a display which indicates the board is connected and which IP address has been assigned to it.
 \item  Execute
@@ -47,7 +53,7 @@ sudo apt-get update
 \begin{verbatim}
 uname -r
 \end{verbatim} 
-to verify kernel version.  Please note that the Remoteproc framework is still evolving and it is required to verify that the kernel used will work with the PRU support package examples.  The latest published images will probably be correct, but it may be required to verify this.
+to verify kernel version.  Please note that the Remoteproc framework is still evolving and it is recommended to verify that the kernel used will work with the PRU support package examples.
 
 The rest of the set-up will be completed using root access.
 Execute
@@ -55,7 +61,74 @@ Execute
 sudo su
 \end{verbatim}
 and authenticate as required to switch to root user.
+\item Clone this repository to a convenient directory:
 
+\begin{verbatim}
+git clone https://github.com/RobertCNelson/dtb-rebuilder
+\end{verbatim}
+
+\item Execute:
+\begin{verbatim}
+cd dtb-rebuilder/ 
+cd src/arm
+\end{verbatim}
+\item Find and edit the top of the device tree dts file.
+For BBG, this is:
+\begin{verbatim}
+am335x-bonegreen.dts
+\end{verbatim}
+The only change required is to uncomment a single line in the file:
+\begin{verbatim}
+/*   #include "am33xx-pruss-rproc.dtsi"  */
+\end{verbatim}
+
+Unquote the line as follows:
+\begin{verbatim}
+#include "am33xx-pruss-rproc.dtsi"
+\end{verbatim}
+Save and exit.
+\item
+Execute:
+\begin{verbatim}
+cd /etc/modprobe.d
+\end{verbatim}
+Create a new file named:
+\begin{verbatim}
+pruss-blacklist.conf
+\end{verbatim} 
+
+Add this single line to the file:
+\begin{verbatim}
+blacklist uio_pruss
+\end{verbatim}
+Save and exit.
+\item
+cd back to the dtb-rebuilder directory.  Execute these commands:
+\begin{verbatim}
+make 
+make install 
+reboot
+\end{verbatim} 
+\end{enumerate}
+To verify that the above process was successful:
+
+\begin{verbatim}
+cd /sys/bus/platform/devices
+ls
+\end{verbatim}
+
+Now look for the following in the output from the ls command:
+\begin{verbatim}
+4a300000.pruss
+4a320000.intc
+4a334000.pru0
+4a338000.pru1
+\end{verbatim}
+
+The appearance of the above entries indicates that the Remoteproc PRU activation process was successful.
+
+\section{PRU Compiler Setup Process}
+\begin{enumerate}
 \item  Execute these commands:
   \begin{verbatim}
 cd /
@@ -122,7 +195,7 @@ This will fail, as the Makefile is looking for environment variable \$PRU\_CGT. 
 export PRU_CGT=/usr/share/ti/cgt-pru
 \end{verbatim}
 
-Now execute the make command again.  It should succeed.  A new directory ``gen'' should appear.
+Now execute the make command again.  It should succeed.  A new directory ``gen'' should appear.  Add the above export command to the start-up commands (.profile or .bashrc).
 \item  Execute the following:
 \begin{verbatim}
 cd gen
