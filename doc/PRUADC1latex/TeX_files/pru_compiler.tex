@@ -218,8 +218,51 @@ cp PRU_RPMsg_Echo_Interrupt1.out am335x-pru1-fw
 cp am335x-pru1-fw /lib/firmware
 \end{verbatim}
 The compilation of both PRU firmwares are complete and they are copied to /lib/firmware.
-\item  Reboot
-%\item  cd /dev look for rpmsg\_pru31 device file.  It will be there!
+\item  reboot
+\item  Execute:
+
+\begin{verbatim}
+lsmod
+\end{verbatim}
+
+These kernel modules should be present in the output:
+
+\begin{verbatim}
+pru_rproc              15431  0 
+pruss_intc              8603  1 pru_rproc
+pruss                  12026  1 pru_rproc
+\end{verbatim}
+Now execute:
+\begin{verbatim}
+rmmod pru_rproc
+modprobe pru_rproc
+\end{verbatim}
+
+The rmmod command removes the remoteproc module pru\_rproc.
+The modprobe command re-inserts the same module.
+\item  
+\begin{verbatim}
+cd /dev
+ls
+\end{verbatim} 
+
+Look for rpmsg\_pru31 character device file.  It will be there!
 \end{enumerate}
+
+\section{Additional Steps to Compile the PRU Remoteproc Project}
+
+Some components of the PRU Support Package need to be added to the PRU C compiler directories.  The Makefile expects to find these components in these directories.
+
+
+Execute these commands:
+
+\begin{verbatim}
+cd pru-software-support-package/
+cp -r include $PRU_CGT/includeSupportPackage
+cp lib/rpmsg_lib.lib $PRU_CGT/lib
+\end{verbatim}
+
+This should complete the configuration required to run the command successfully.
+
 
 
