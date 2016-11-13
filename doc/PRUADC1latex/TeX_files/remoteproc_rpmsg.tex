@@ -51,17 +51,26 @@ This will list the LKMs currently loaded.  The modules associated with Remotepro
 \begin{itemize}
 \item pruss
 \item pru\_rproc
+\item pruss\_intc
 \end{itemize}
 
-There is another module associated with RPMsg, and this will appear in the list only after the firmwares are loaded into the PRUs:
+There are two modules associated with RPMsg, and these will appear in the list only after the firmwares are loaded into the PRUs:
 
 \begin{verbatim}
-
+virtio_rpmsg_bus
+rpmsg_pru
 \end{verbatim}
 
-Some of the Beaglebone distributions will not have the above modules loaded by default at boot.  However, they can be loaded (or unloaded) anytime after boot with the following commands:
+The Remoteproc kernel modules may not be loaded at boot (depending on boot configuration).  However, they can be loaded (or unloaded) anytime after boot with the following commands:
 
-A second set of shell scripts is included in the repository which includes these commands in the ``prumodout'' and ``prumodin'' scripts.
+\begin{verbatim}
+modprobe pru_rproc
+rmmod pru_rproc
+\end{verbatim}
+
+``modprobe'' is the load command; rmmod is the remove command.
+
+Perhaps a better method of controlling the Remoteproc framework is via the sys virtual file system.  A set of shell scripts is included in the repository which includes these commands in the ``prumodout'' and ``prumodin'' scripts.
 
 \section{Files Associated with RemoteProc in the Compilation Process}
 
