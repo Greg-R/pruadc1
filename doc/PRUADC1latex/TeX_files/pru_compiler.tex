@@ -41,6 +41,23 @@ The newest Beaglebone Debian distributions do not have the Remoteproc framework 
 
 The following process activates the framework which includes several loadable kernel modules.  This is a prerequisite for the remainder of the setup process.
 
+This process was tested using this image:
+
+bone-debian-8.6-iot-armhf-2016-10-30-4gb.img
+
+The ``IOT'' (Internet Of Things) image includes the set of tools required to install and compile required software.
+The image was found at this web site:
+
+\url{http://elinux.org/Beagleboard:BeagleBoneBlack_Debian#microSD.2FStandalone:_.28iot.29_.28BeagleBone.2FBeagleBone_Black.2FBeagleBone_Green.29}
+
+The IOT distribution includes very useful scripts in the following directory:
+
+/opts/scripts/tools
+
+The script grow\_partition.sh will expand the file system on the microsd card to its full capacity.  Running this script is highly recommended before proceeding with this process!
+
+\section{Activate Remoteproc: Step-by-step Process}
+
 \begin{enumerate}
 \item  Write Beaglebone image to micro-sd and expand partition as required.
 \item  Insert micro-sd into BBG slot, press boot and power buttons and release.  Non-flasher images may not require the boot button to be pressed, and the board will boot and run from the SD card.
